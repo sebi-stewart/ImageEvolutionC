@@ -5,11 +5,11 @@
  * image, and holds the top left pixel of the image in front,
  * as well as the width and height of the image
  * */
-typedef struct image {
+typedef struct {
     int width;
     int height;
-    pixel_t * front;
-} image_t;
+    pixel_t *front;
+} PPMImage;
 
 
 

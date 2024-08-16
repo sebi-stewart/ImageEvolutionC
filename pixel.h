@@ -16,11 +16,11 @@
  * The pixels go from top left to top right and then 
  * a line down each time
  * */
-typedef struct pixel {
-    int red;
-    int green;
-    int blue;
-} pixel_t;
+typedef struct {
+    unsigned char red;
+    unsigned char green;
+    unsigned char blue;
+} PPMPixel;
 
 
 /*
@@ -34,7 +34,7 @@ typedef struct pixel {
  * Return:
  * Pointer to the newly created pixel struct
  * */
-pixel_t* pixel_new(int red, int green, int blue);
+PPMPixel* PPMPixel_new(unsigned char red, unsigned char green, unsigned char blue);
 
 /*
  * This function sets the values of the pixel pointed to
@@ -51,7 +51,7 @@ pixel_t* pixel_new(int red, int green, int blue);
  * Return:
  * Pointer to assigned pixel
  * */
-pixel_t* pixel_set(pixel_t* pixel, int red, int green, int blue);
+PPMPixel* PPMPixel_set(PPMPixel* pixel, unsigned char red, unsigned char green, unsigned char blue);
 
 /*
  * This function checks if two pixels are equal to eachother
@@ -67,10 +67,11 @@ pixel_t* pixel_set(pixel_t* pixel, int red, int green, int blue);
  * Bool evaluation -> true | false
  * 
  * */
-bool pixel_is_equal(pixel_t* p1, pixel_t* p2);
+bool PPMPixel_is_equal(PPMPixel* p1, PPMPixel* p2);
 
 /*
  * This function compares the how similar two pixels are in RGB values
+ * We expect the same result if the inputs aka p1 and p2 were swapped
  * 
  * Parameters:
  * p1 - A non null pointer to the first pixel
@@ -80,7 +81,7 @@ bool pixel_is_equal(pixel_t* p1, pixel_t* p2);
  * Integer evaluation -> 0 - (PIXEL_COLOR_VALUE-1)*3
  * If either value, or both are NULL -1 is returned
  * */
-int pixel_compare(pixel_t* p1, pixel_t* p2);
+short PPMPixel_compare(PPMPixel* p1, PPMPixel* p2);
 
 /*
  * Prints the pixel to the console
@@ -91,25 +92,5 @@ int pixel_compare(pixel_t* p1, pixel_t* p2);
  * Errors:
  * If pixel is null, the function is terminated
  * */
-void pixel_print(pixel_t* pixel);
-
-/*
- * Free the allocated memory of the pixel struct element
- *
- * If the pixel to be deleted is null, this function has no effect
- * If the head and to be deleted pixel are the same, the head gets freed
- * and the next pixel is returned
- * Else the pixel to be deleted is found and deleted and cut out
- *
- *
- * Parameters:
- * head - Pointer to the pointer to the head of the pixel list
- * del_pixel - Pointer to pixel struct to be freed
- *
- * Return:
- * If head is the same as del_pixel then head->next is returned
- * Else head is returned
- * */
-void pixel_clear(pixel_t* pixel);
-
+void PPMPixel_print(PPMPixel* pixel);
 #endif
