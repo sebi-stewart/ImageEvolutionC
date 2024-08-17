@@ -22,8 +22,11 @@ typedef struct {
  * height - Pixel height or Y value of the image as a positive integer
  *
  * Return:
- * If width and height are positive values -> Pointer to a allocated PPMImage object
- * If width or height are negative -> NULL Pointer
+ * Pointer to a allocated PPMImage object
+ * 
+ * Errors:
+ * Memory was not able to be allocated
+ * Width or Height were not greater than 0
  * */
 PPMImage* PPMImage_new(int width, int height);
 
@@ -34,8 +37,15 @@ PPMImage* PPMImage_new(int width, int height);
  * fp - Filepath to the PPM-image to be loaded
  *
  * Return:
- * If fp is valid -> Copy of the image at the filepath
- * If fp is invalid or if the data inside the file is incorrect/corrupted -> NULL Pointer
+ * Copy of the image at the filepath
+ *
+ * Errors:
+ * Filepath was invalid
+ * Invalid image format
+ * Invalid image size
+ * Invalid rgb component
+ * File does not have 8-bit components
+ * Error in loading image
  * */
 PPMImage* PPMImage_load(char* fp);
 

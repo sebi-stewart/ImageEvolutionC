@@ -5,6 +5,11 @@
 
 
 PPMImage* PPMImage_new(int width, int height){
+    if (width < 1 || height < 1){
+        fprintf(stderr, "Height and/or Width of image were less than or equal to 0");
+        exit(1);
+    }
+
     PPMImage* img;
     img = (PPMImage *)malloc(sizeof(PPMImage));
     if (!img){
