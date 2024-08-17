@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include "pixel.h"
+#include "PPMPixel.h"
 
 
 PPMPixel* PPMPixel_new(unsigned char red, unsigned char green, unsigned char blue){
@@ -57,32 +57,32 @@ short PPMPixel_compare(PPMPixel* p1, PPMPixel* p2){
 
 void PPMPixel_print(PPMPixel* pixel){
     if (pixel == NULL){
-        printf("Pixel: NULL\n");
+        printf("NULL");
         return;
     }
-    printf("Pixel: %03d - %03d - %03d\n", pixel->red, pixel->green, pixel->blue);
+    printf("%03d - %03d - %03d ", pixel->red, pixel->green, pixel->blue);
     
 }
 
-int main(void){
-    PPMPixel* pixel1 = PPMPixel_new(10, 50, 20);
-    PPMPixel* pixel2 = PPMPixel_new(15, 100, 40);
-    PPMPixel* pixel3 = PPMPixel_new(20, 150, 60);
-    PPMPixel* pixel4 = PPMPixel_new(25, 200, 80);
-
-    PPMPixel_print(pixel1);
-    PPMPixel_print(pixel3);
-    PPMPixel_print(pixel2);
-    PPMPixel_print(pixel4);
-
-    printf("Pixel difference: %hd\n", PPMPixel_compare(pixel1, pixel2));
-    printf("Pixel difference: %hd\n", PPMPixel_compare(pixel2, pixel3));
-    printf("Pixel difference: %hd\n", PPMPixel_compare(pixel3, pixel4));
-    printf("Pixel difference: %hd\n", PPMPixel_compare(pixel4, pixel1));
-    printf("Pixel difference: %hd\n", PPMPixel_compare(pixel2, pixel1));
-
-    PPMPixel pixel5 = {123, 123, 2234};
-    PPMPixel_print(&pixel5);
-
-    return 0;
-}
+//int main(void){
+//    PPMPixel* pixel1 = PPMPixel_new(10, 50, 20);
+//    PPMPixel* pixel2 = PPMPixel_new(15, 100, 40);
+//    PPMPixel* pixel3 = PPMPixel_new(20, 150, 60);
+//    PPMPixel* pixel4 = PPMPixel_new(25, 200, 80);
+//
+//    PPMPixel_print(pixel1);
+//    PPMPixel_print(pixel3);
+//    PPMPixel_print(pixel2);
+//    PPMPixel_print(pixel4);
+//
+//    printf("Pixel difference: %hd\n", PPMPixel_compare(pixel1, pixel2));
+//    printf("Pixel difference: %hd\n", PPMPixel_compare(pixel2, pixel3));
+//    printf("Pixel difference: %hd\n", PPMPixel_compare(pixel3, pixel4));
+//    printf("Pixel difference: %hd\n", PPMPixel_compare(pixel4, pixel1));
+//    printf("Pixel difference: %hd\n", PPMPixel_compare(pixel2, pixel1));
+//
+//    PPMPixel pixel5 = {123, 123, 2234};
+//    PPMPixel_print(&pixel5);
+//
+//    return 0;
+//}

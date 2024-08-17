@@ -1,5 +1,5 @@
-#ifndef _PIXEL_H
-#define _PIXEL_H
+#ifndef _PPMPIXEL_H
+#define _PPMPIXEL_H
 
 #include <stdbool.h>
 
@@ -78,7 +78,7 @@ bool PPMPixel_is_equal(PPMPixel* p1, PPMPixel* p2);
  * p2 - A non null pointer to the second pixel 
  *
  * Return:
- * Integer evaluation -> 0 - (PIXEL_COLOR_VALUE-1)*3
+ * Short evaluation -> 0 - (PIXEL_COLOR_VALUE-1)*3
  * If either value, or both are NULL -1 is returned
  * */
 short PPMPixel_compare(PPMPixel* p1, PPMPixel* p2);
