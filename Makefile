@@ -1,12 +1,13 @@
 CC = gcc
 
-all: image
+all: PPMImage.o
 
-image: PPMImage.c PPMPixel.c
+PPMImage.o: PPMImage.c PPMPixel.c
 	$(CC) -O0 -Wall PPMImage.c PPMPixel.c -o PPMImage.o
 
-pixel: PPMPixel.c
+PPMPixel.o: PPMPixel.c
 	$(CC) -O0 -Wall PPMPixel.c -o PPMPixel.o
 
 clean:
-	rm PPMImage.o PPMPixel.o
+	@rm -rf *.o
+	@echo "Deleted Output files"
