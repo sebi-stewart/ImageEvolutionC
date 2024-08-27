@@ -28,6 +28,29 @@ PPMPixel* PPMPixel_set(PPMPixel* pixel, unsigned char R, unsigned char G, unsign
     return pixel;
 }
 
+PPMPixel* PPMPixel_copy(PPMPixel* p1, PPMPixel* p2){
+    if (p1 == NULL && p2 == NULL){
+        fprintf(stderr, "PPMPixel_copy: Both pixels were NULL");
+        exit(1);
+    }
+
+    if (p1 == p2){
+        return p1;
+    }
+
+    if (p1 == NULL){
+        p1 = p2;
+        p2 = NULL;
+    }
+
+    if (p2 == NULL){
+        p2 = PPMPixel_new(p1->R, p1->G, p1->B);
+    } else {
+        p2 = PPMPixel_set(p2, p1->R, p1->G, p1->B);
+    }
+    return p2;
+}
+
 bool PPMPixel_is_equal(PPMPixel* p1, PPMPixel* p2){
     if (p1 == p2){
         return true;
@@ -53,6 +76,21 @@ short PPMPixel_compare(PPMPixel* p1, PPMPixel* p2){
     sum += abs(p1->G - p2->G);
     sum += abs(p1->B - p2->B);
     return sum;
+}
+
+char* PPMPixel_to_string(PPMPixel* pixel){
+    if (!pixel){
+        fprintf(stderr, "PPMPixel_to_string: Pixel was NULL\n");
+            exit(1);
+    }
+    char* pstring = (char*)malloc(PPM_STRING_BUFFER);
+    if (!pstring){
+        fprintf(stderr, "PPMPixel_to_string: Unable to allocate memory for string\n");
+        exit(1);
+    }
+    sprintf(pstring, PPM_STRING_FORMAT, pixel->R, pixel->G, pixel->B);
+
+    return pstring;
 }
 
 void PPMPixel_print(PPMPixel* pixel){

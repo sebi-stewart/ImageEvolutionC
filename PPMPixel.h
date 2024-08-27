@@ -10,6 +10,15 @@
  * */
 #define PIXEL_COLOR_VALUE 255
 
+/*
+ * Definers for the to string conversion
+ * The buffer is of size 4 * 3 + 1
+ * This means that we have 4 (3 maximum digits per RGB value + 1 white space) * 3 times + 1 null terminator
+ * */
+#define PPM_STRING_BUFFER 13
+#define PPM_STRING_FORMAT "%u %u %u "
+
+
 
 /*
  * This is a singular pixel that holds colour values
@@ -55,6 +64,23 @@ PPMPixel* PPMPixel_new(unsigned char R, unsigned char G, unsigned char B);
 PPMPixel* PPMPixel_set(PPMPixel* pixel, unsigned char R, unsigned char G, unsigned char B);
 
 /*
+ * Copies the values of one pixel to the other
+ * If either is null, memory is assigned for it and the existing one is used as the template for the values
+ * If both exist then p2 is edited
+ *
+ * Parameters:
+ * p1 - Pointer to a Pixel
+ * p2 - Pointer to a Pixel
+ *
+ * Return:
+ * Pointer to the pixel that was editted
+ *
+ * Errors:
+ * Both pointers were NULL
+ * */
+PPMPixel* PPMPixel_copy(PPMPixel* p1, PPMPixel* p2);
+
+/*
  * This function checks if two pixels are equal to eachother
  * If both inputs are null it returns true
  * If they are not equal or if only one is null, it returns false
@@ -79,10 +105,26 @@ bool PPMPixel_is_equal(PPMPixel* p1, PPMPixel* p2);
  * p2 - A non null pointer to the second pixel 
  *
  * Return:
- * Short evaluation -> 0 - (PIXEL_COLOR_VALUE-1)*3
+ * Short evaluation -> 0 - (PIXEL_COLOR_VALUE)*3
  * If either value, or both are NULL -1 is returned
  * */
 short PPMPixel_compare(PPMPixel* p1, PPMPixel* p2);
+
+/*
+ * This function converts a given pixel into a string of format 
+ * Uses the P3_STRING_FORMAT
+ *
+ * Parameters:
+ * pixel - A non null pointer to the pixel
+ *
+ * Return:
+ * Pointer to a char array of the pixel
+ *
+ * Errors:
+ * If the pixel is null, the function is terminated
+ * Unable to allocate memory for the string
+ * */
+char* PPMPixel_to_string(PPMPixel* pixel);
 
 /*
  * Prints the pixel to the console
