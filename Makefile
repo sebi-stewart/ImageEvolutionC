@@ -2,10 +2,10 @@ CC = gcc
 
 all: PPMImage.o
 
-PPMImage.o: PPMImage.c PPMPixel.c
+PPMImage.o: PPMImage.c PPMImage.h PPMPixel.c PPMPixel.h
 	$(CC) -O0 -Wall PPMImage.c PPMPixel.c -o PPMImage.o
 
-PPMPixel.o: PPMPixel.c
+PPMPixel.o: PPMPixel.c PPMPixel.h
 	$(CC) -O0 -Wall PPMPixel.c -o PPMPixel.o
 
 clean:
