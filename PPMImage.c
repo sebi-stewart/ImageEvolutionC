@@ -37,6 +37,94 @@ PPMImage* PPMImage_new(int width, int height){
     return img;
 }
 
+PPMImage* PPMImage_set_pixel(PPMImage* image, int x, int y, unsigned char R, unsigned char G, unsigned char B){
+    if (!image){
+        fprintf(stderr, "PPMImage_set_pixel: Image was NULL\n");
+        exit(1);
+    }
+    if (!image->data){
+        fprintf(stderr, "PPMImage_set_pixel: Image data was NULL\n");
+        exit(1);
+    }
+
+    if (x < 0 || x >= image->x || y < 0 || y >= image->y){
+        fprintf(stderr, "PPMImage_set_pixel: X and/or Y value were out of bounds\n");
+        exit(1);
+    }
+
+    if (
+            R < 0 || R > PIXEL_COLOR_VALUE ||
+            G < 0 || G > PIXEL_COLOR_VALUE ||
+            B < 0 || B > PIXEL_COLOR_VALUE){
+        fprintf(stderr, "PPMImage_set_pixel: RGB values were out of bounds\n");
+        exit(1);
+    }
+
+    image->data[y * image->x + x] = *PPMPixel_set(&image->data[y * image->x + x], R, G, B);
+    return image;
+}
+
+
+PPMImage* PPMImage_set_background(PPMImage* image, unsigned char R, unsigned char G, unsigned char B){
+    if (!image){
+        fprintf(stderr, "PPMImage_set_pixel: Image was NULL\n");
+        exit(1);
+    }
+    if (!image->data){
+        fprintf(stderr, "PPMImage_set_pixel: Image data was NULL\n");
+        exit(1);
+    }
+
+    if (
+            R < 0 || R > PIXEL_COLOR_VALUE ||
+            G < 0 || G > PIXEL_COLOR_VALUE ||
+            B < 0 || B > PIXEL_COLOR_VALUE){
+        fprintf(stderr, "PPMImage_set_pixel: RGB values were out of bounds\n");
+        exit(1);
+    }
+    
+    int x, y;
+    for(y=0; y < image->y; y++){
+        for(x=0; x < image->x; x++){
+            image->data[y * image->x + x] = *PPMPixel_set(&image->data[y * image->x + x], R, G, B);
+        }
+    }
+    return image;
+}
+
+PPMImage* PPMImage_copy(PPMImage* img1, PPMImage* img2){
+    if (img1 == NULL && img2 == NULL){
+        fprintf(stderr, "PPMImage_copy: Both images were NULL\n");
+        exit(1);
+    }
+
+    if (img1 == img2){
+        return img1;
+    }
+    
+    if (img1 == NULL){
+        img1 = img2;
+        img2 = NULL;
+    }
+
+    if (img1->data == NULL){
+        fprintf(stderr, "PPMImage_copy: Image data was NULL\n");
+        exit(1);
+    }
+
+    if (img2 == NULL){
+        img2 = PPMImage_new(img1->x, img1->y);
+    }
+
+    int x, y;
+    for(y=0; y < img1->y; y++){
+        for(x=0; x < img1->x; x++){
+            img2->data[y * img1->x + x] = *PPMPixel_copy(&img1->data[y * img1->x + x], &img2->data[y * img1->x + x]);
+        }
+    }
+    return img2;
+}
+
 bool has_ppm_extension(char* fp){
     if (!fp){
         fprintf(stderr, "has_ppm_extension: Filepath was NULL\n");
@@ -141,16 +229,19 @@ void PPMImage_save(PPMImage* image, char* fp){
 
     FILE *file;
 
-    file = fopen(fp, "w");
+    file = fopen(fp, "wb");
     if (!file){
         fprintf(stderr, "PPMImage_save: File was unable to be created");
         exit(1);
     }
-
-    fprintf(file, P3_HEADER_FORMAT, image->x, image->y, PIXEL_COLOR_VALUE);
-    fclose(file);
-
     
+    // Write the header to the file
+    fprintf(file, PPM_HEADER_FORMAT, image->x, image->y, PIXEL_COLOR_VALUE);
+    
+    // Write the image contents
+    fwrite(image->data, 3 * image->x, image->y, file);
+
+    fclose(file);
 }
 
 void PPMImage_del(PPMImage* image){
@@ -208,6 +299,11 @@ int main(void){
 
     PPMImage_del(img4);
     PPMImage_del(img3);
+
+    img2 = PPMImage_set_background(img2, 255, 0, 255);
+    img3 = PPMImage_copy(img3, img2);
+
+    PPMImage_print(img3);
 
     PPMImage_save(img2, "a.ppm");
 

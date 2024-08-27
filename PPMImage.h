@@ -4,7 +4,7 @@
 #include "PPMPixel.h"
 
 
-#define P3_HEADER_FORMAT "P3\n%d %d\n%d\n"
+#define PPM_HEADER_FORMAT "P6\n%d %d\n%d\n"
 
 /* 
  * This is a component that holds all the data of an 
@@ -32,6 +32,62 @@ typedef struct {
  * Width or Height were not greater than 0
  * */
 PPMImage* PPMImage_new(int width, int height);
+
+/*
+ * This function sets the value of the specified pixel to the values inputted
+ *
+ * Parameters:
+ * image - Non NULL pointer to the Image of which the pixel should be editted
+ * x - Poistion of the pixel on the X-Axis
+ * y - Poistion of the pixel on the Y-Axis
+ * R, G, B - Colour values of the pixel
+ *
+ * Return:
+ * Pointer to the modified PPMImage
+ *
+ * Errors:
+ * Image was NULL
+ * Image data was NULL
+ * X, or Y were out of bounds
+ * RGB values were out of bounds
+ * */
+PPMImage* PPMImage_set_pixel(PPMImage* image, int x, int y, unsigned char R, unsigned char G, unsigned char B);
+
+/*
+ * This function sets the value of all the pixels in an image
+ *
+ * Parameters:
+ * image - Non NULL pointer to the Image of which the pixel should be editted
+ * R, G, B - Colour values of the pixel
+ *
+ * Return:
+ * Pointer to the modified PPMImage
+ *
+ * Errors:
+ * Image was NULL
+ * Image data was NULL
+ * RGB values were out of bounds
+ * */
+PPMImage* PPMImage_set_background(PPMImage* image, unsigned char R, unsigned char G, unsigned char B);
+
+/*
+ * This function copies the pixels from one image to another
+ * If either image is NULL then this one will be editted
+ * If neither image is NULL, then img2 will be editted
+ *
+ * Parameters:
+ * img1 - Pointer to a PPMImage
+ * img2 - Pointer to a PPMImage
+ *
+ * Return:
+ * Pointer to the editted PPMImage
+ *
+ * Errors:
+ * Both images were NULL
+ * Data of the non NULL image was NULL
+ * Data of img1 was NULL
+ * */
+PPMImage* PPMImage_copy(PPMImage* img1, PPMImage* img2);
 
 /*
  * Check if a given filepath has the ppm extension
