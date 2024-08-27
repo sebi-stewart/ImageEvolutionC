@@ -3,27 +3,27 @@
 #include "PPMPixel.h"
 
 
-PPMPixel* PPMPixel_new(unsigned char red, unsigned char green, unsigned char blue){
-    return PPMPixel_set((PPMPixel*) malloc(sizeof(PPMPixel)), red, green, blue);
+PPMPixel* PPMPixel_new(unsigned char R, unsigned char G, unsigned char B){
+    return PPMPixel_set((PPMPixel*) malloc(sizeof(PPMPixel)), R, G, B);
 }
 
 
-PPMPixel* PPMPixel_set(PPMPixel* pixel, unsigned char red, unsigned char green, unsigned char blue){
+PPMPixel* PPMPixel_set(PPMPixel* pixel, unsigned char R, unsigned char G, unsigned char B){
     if (pixel == NULL){
         return NULL;
     }
 
-    if (red > PIXEL_COLOR_VALUE - 1) {red = (unsigned char)PIXEL_COLOR_VALUE-1;}
-    if (green > PIXEL_COLOR_VALUE - 1) {green = (unsigned char)PIXEL_COLOR_VALUE-1;}
-    if (blue > PIXEL_COLOR_VALUE - 1) {blue = (unsigned char)PIXEL_COLOR_VALUE-1;}
+    if (R > PIXEL_COLOR_VALUE) {R = (unsigned char)PIXEL_COLOR_VALUE;}
+    if (G > PIXEL_COLOR_VALUE) {G = (unsigned char)PIXEL_COLOR_VALUE;}
+    if (B > PIXEL_COLOR_VALUE) {B = (unsigned char)PIXEL_COLOR_VALUE;}
 
-    if (red < 0) {red = 0;}
-    if (green < 0 ) {green = 0;}
-    if (blue < 0 ) {blue = 0;}
+    if (R < 0) {R = 0;}
+    if (G < 0 ) {G = 0;}
+    if (B < 0 ) {B = 0;}
 
-    pixel->red = red;
-    pixel->green = green;
-    pixel->blue = blue;
+    pixel->R = R;
+    pixel->G = G;
+    pixel->B = B;
 
     return pixel;
 }
@@ -35,9 +35,9 @@ bool PPMPixel_is_equal(PPMPixel* p1, PPMPixel* p2){
     if (p1 == NULL || p2 == NULL){
         return false;
     }
-    if (p1->red == p2->red &&
-            p1->green == p2->green &&
-            p1->blue == p2->blue){
+    if (p1->R == p2->R &&
+            p1->G == p2->G &&
+            p1->B == p2->B){
         return true;
     }
     return false;
@@ -49,9 +49,9 @@ short PPMPixel_compare(PPMPixel* p1, PPMPixel* p2){
     }
 
     short sum = 0;
-    sum += abs(p1->red - p2->red);
-    sum += abs(p1->green - p2->green);
-    sum += abs(p1->blue - p2->blue);
+    sum += abs(p1->R - p2->R);
+    sum += abs(p1->G - p2->G);
+    sum += abs(p1->B - p2->B);
     return sum;
 }
 
@@ -60,7 +60,7 @@ void PPMPixel_print(PPMPixel* pixel){
         printf("NULL");
         return;
     }
-    printf("%03d - %03d - %03d ", pixel->red, pixel->green, pixel->blue);
+    printf("%03d - %03d - %03d ", pixel->R, pixel->G, pixel->B);
     
 }
 

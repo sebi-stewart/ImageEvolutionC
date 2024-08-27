@@ -5,9 +5,10 @@
 
 /*
  * This defines how many colour values each RGB component could have
- * The maximum value for each RGB component is PIXEL_COLOR_VALUE - 1
+ * The maximum value for each RGB component is PIXEL_COLOR_VALUE
+ * Therefore we can have PIXEL_COLOR_VALUE + 1 different colour values
  * */
-#define PIXEL_COLOR_VALUE 256
+#define PIXEL_COLOR_VALUE 255
 
 
 /*
@@ -17,9 +18,9 @@
  * a line down each time
  * */
 typedef struct {
-    unsigned char red;
-    unsigned char green;
-    unsigned char blue;
+    unsigned char R;
+    unsigned char G;
+    unsigned char B;
 } PPMPixel;
 
 
@@ -27,14 +28,14 @@ typedef struct {
  * This function creates a new pixel based on the input values
  *
  * Parameters:
- * red - int RGB red value 0-255
- * green - int RGB green value 0-255
- * blue - int RGB blue value 0-255
+ * R - int RGB red value 0-255
+ * G - int RGB green value 0-255
+ * B - int RGB blue value 0-255
  *
  * Return:
  * Pointer to the newly created pixel struct
  * */
-PPMPixel* PPMPixel_new(unsigned char red, unsigned char green, unsigned char blue);
+PPMPixel* PPMPixel_new(unsigned char R, unsigned char G, unsigned char B);
 
 /*
  * This function sets the values of the pixel pointed to
@@ -44,14 +45,14 @@ PPMPixel* PPMPixel_new(unsigned char red, unsigned char green, unsigned char blu
  *
  * Parameters:
  * pixel - Pointer to a newly created pixel
- * red - int RGB red value 0-255
- * green - int RGB green value 0-255
- * blue - int RGB blue value 0-255
+ * R - int RGB red value 0-255
+ * G - int RGB green value 0-255
+ * B - int RGB blue value 0-255
  * 
  * Return:
  * Pointer to assigned pixel
  * */
-PPMPixel* PPMPixel_set(PPMPixel* pixel, unsigned char red, unsigned char green, unsigned char blue);
+PPMPixel* PPMPixel_set(PPMPixel* pixel, unsigned char R, unsigned char G, unsigned char B);
 
 /*
  * This function checks if two pixels are equal to eachother

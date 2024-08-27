@@ -3,6 +3,9 @@
 
 #include "PPMPixel.h"
 
+
+#define P3_HEADER_FORMAT "P3\n%d %d\n%d\n"
+
 /* 
  * This is a component that holds all the data of an 
  * image, and holds an array of pixels in the data value
@@ -29,6 +32,22 @@ typedef struct {
  * Width or Height were not greater than 0
  * */
 PPMImage* PPMImage_new(int width, int height);
+
+/*
+ * Check if a given filepath has the ppm extension
+ *
+ * Parameters:
+ * fp - Filepath to the PPM-image
+ *
+ * Return:
+ * True if the filepath ends in ppm
+ * False if the filepath doesn't end in ppm
+ * False if the filepath is less than or equal to 4 characters long
+ *
+ * Errors:
+ * Filepath was NULL
+ * */
+bool has_ppm_extension(char* fp);
 
 /*
  * Load a new image into memory from a specific filepath
@@ -103,10 +122,10 @@ int PPMImage_compare(PPMImage* img1, PPMImage* img2);
  * fp - Filepath of where to be saved
  *
  * Errors:
- * File was not found
  * File could not be accessed/writing to file
  * Image was NULL
  * Filepath was NULL
+ * Filepath did not end in .ppm
  * */
 void PPMImage_save(PPMImage* image, char* fp);
 
