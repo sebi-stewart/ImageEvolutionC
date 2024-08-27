@@ -11,3 +11,5 @@ PPMPixel.o: PPMPixel.c
 clean:
 	@rm -rf *.o
 	@echo "Deleted Output files"
+	@rm -rf *.ppm
+	@echo "Deleted Image files"

@@ -7,6 +7,9 @@
 *.obj
 *.elf
 
+# Image files
+*.ppm
+
 # Vim temporary files
 *~
 *.swp
