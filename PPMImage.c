@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "PPMImage.h"
-
+#include <limits.h>
 
 
 PPMImage* PPMImage_new(int width, int height){
@@ -142,6 +142,80 @@ bool has_ppm_extension(char* fp){
     return false;
 }
 
+PPMImage* PPMImage_load(char* fp){
+    char buff[16];
+    PPMImage* img;
+    FILE *file;
+
+    if (!has_ppm_extension(fp)){
+        fprintf(stderr, "PPMImage_load: File didn't end in PPM or was not long enough\n");
+        exit(1);
+    }
+
+    file = fopen(fp, "rb");
+    if (!file){
+        fprintf(stderr, "PPMImage_load: Unable to open file\n");
+        exit(1);
+    }
+
+    // Read and Check image format
+    if (!fgets(buff, sizeof(buff), file)){
+        fprintf(stderr, "PPMImage_load: Unable to read file\n");
+        exit(1);
+    }
+
+    if (buff[0] != 'P' || buff[1] != '6'){
+        fprintf(stderr, "PPMImage_load: Invalid Image format (must be P6)\n");
+        exit(1);
+    }
+
+    int c, x, y, rgb_comp_colour;
+    // Check for comments
+    c = getc(file);
+    while (c == '#') {
+        while (getc(file) != '\n') ;
+        c = getc(file);
+    }
+    ungetc(c, file);
+
+    // Read image size information
+    if (fscanf(file, PPM_SIZE_FORMAT, &x, &y) != 2 || x <= 0 || y <= 0){
+        fprintf(stderr, "PPMImage_load: Invalid image size\n");
+        exit(1);
+    }
+
+    // Read RGB Component
+    if (fscanf(file, PPM_RGB_FORMAT, &rgb_comp_colour) != 1){
+        fprintf(stderr, "PPMImage_load: Invalid RGB Component\n");
+        exit(1);
+    }
+
+    // Check RGB Component depth
+    if (rgb_comp_colour != PIXEL_COLOR_VALUE){
+        fprintf(stderr, "PPMImage_load: File does not contain 8-bit components\n");
+        exit(1);
+    }
+
+    while (fgetc(file) != '\n') ;
+
+    // Memory allocation for the image
+    img = PPMImage_new(x, y);
+    if (!img || !img->data){
+        fprintf(stderr, "PPMImage_load: Unable to allocate memory for image\n");
+        exit(1);
+    }
+
+    // Load image data
+    if (fread(img->data, 3 * img->x, img->y, file) != img->y){
+        fprintf(stderr, "PPMImage_load: Unable to load image data\n");
+        exit(1);
+    } 
+
+    fclose(file);
+    return img;
+
+}
+
 bool PPMImage_is_equal(PPMImage* img1, PPMImage* img2){
     if (img1 == img2){
         return true;
@@ -210,6 +284,34 @@ int PPMImage_compare(PPMImage* img1, PPMImage* img2){
     return total;
 }
 
+long PPMImage_compare_weighted(PPMImage* img1, PPMImage* img2){
+    if (img1 == NULL || img2 == NULL){
+        return -1;
+    }
+    if (img1 == img2){
+        return 0;
+    }
+
+    if (!PPMImage_equal_dimensions(img1, img2)){
+        return -1;
+    }
+
+    int temp, x, y, i;
+    long total = 0;
+
+    for(y = 0; y < img1->y; y++){
+        for(x = 0; x < img1->x; x++){
+            i = y * img1->x + x;
+            temp = PPMPixel_compare(&img1->data[i], &img2->data[i]);
+            if (temp == -1) {
+                return -1;
+            }
+            total += (temp * temp);
+        }
+    }
+    return total;
+}
+
 
 void PPMImage_save(PPMImage* image, char* fp){
     if (!image){
@@ -272,39 +374,64 @@ void PPMImage_print(PPMImage* image){
 }
 
 int main(void){
+    char* file_path = "7a.ppm";
     
-    PPMImage* img1 = PPMImage_new(10, 10);
-    PPMImage* img2 = PPMImage_new(10, 10);
-    PPMImage* img3 = PPMImage_new(11, 10);
-    PPMImage* img4 = PPMImage_new(10, 10);
-    PPMImage_print(img1);
-    printf("\n%d\n", PPMImage_is_equal(img1, img2));
-    printf("\n%d\n", PPMImage_is_equal(img2, img1));
-    printf("\n%d\n", PPMImage_is_equal(NULL, NULL));
-    printf("%d\n", PPMImage_compare(NULL, NULL));
-
-    printf("\n%d\n", PPMImage_is_equal(img2, img3));
-    printf("%d\n", PPMImage_compare(img2, img3));
-
-    img4->data[1] = *PPMPixel_set(&img4->data[1], 255, 255, 255);
+    PPMImage* img1 = PPMImage_load(file_path);
+    PPMImage* img2 = PPMImage_new(200, 200);
+    PPMImage* img3 = PPMImage_new(200, 200);
     
-    printf("\n%d\n", PPMImage_is_equal(img2, img4));
-    printf("%d\n", PPMImage_compare(img2, img4));
 
-    img2->data[1] = *PPMPixel_set(&img2->data[1], 255, 255, 255);
+    img3 = PPMImage_set_background(img3, 122, 122, 122);
 
-    printf("\n%d\n", PPMImage_is_equal(img2, img4));
-    printf("%d\n", PPMImage_compare(img2, img4));
+    int c1, c2;
 
+    c1 = PPMImage_compare(img1, img2);
+    c2 = PPMImage_compare(img1, img3);
 
-    PPMImage_del(img4);
-    PPMImage_del(img3);
+    printf("Unweighted Comparison:\n . Image2 dif: %d \n . Image3 dif: %d \n", c1, c2);
 
-    img2 = PPMImage_set_background(img2, 255, 0, 255);
-    img3 = PPMImage_copy(img3, img2);
+    long lc1, lc2;
 
-    PPMImage_print(img3);
+    lc1 = PPMImage_compare_weighted(img1, img2);
+    lc2 = PPMImage_compare_weighted(img1, img3);
 
-    PPMImage_save(img2, "a.ppm");
+    printf("\nWeighted Comparison:\n . Image2 dif: %lu \n . Image3 dif: %lu \n", lc1, lc2);
+    
+    int cur_col, low_col, cur_dif, low_dif, low_w_col;
+    long cur_w_dif, low_w_dif;
+    low_dif = INT_MAX;
+    low_w_dif = LONG_MAX;
+    for(cur_col=0; cur_col <= PIXEL_COLOR_VALUE; cur_col++){
+        printf("%d-", cur_col);
+        img3 = PPMImage_set_background(img3, cur_col, cur_col, cur_col);
 
+        cur_dif = PPMImage_compare(img1, img3);
+        cur_w_dif = PPMImage_compare_weighted(img1, img3);
+
+        if (cur_dif < low_dif) {
+            low_dif = cur_dif;
+            low_col = cur_col;
+        }
+        if (cur_w_dif < low_w_dif) {
+            low_w_dif = cur_w_dif;
+            low_w_col = cur_col;
+        }
+    }
+    printf("\n");
+
+    printf("Unweighted: Colour Value %03d : %d\n", low_col, low_dif);
+    printf("Weighted:   Colour Value %03d : %ld\n", low_w_col, low_w_dif);
+
+    return 0;
+    
+
+    printf("Maximum value of short: %d\n", SHRT_MAX);
+    printf("Maximum value of int: %d\n", INT_MAX);
+    printf("Maximum value of long: %ld\n", LONG_MAX);
+
+    printf("Size of short: %lu bits\n", sizeof(short) * 8);
+    printf("Size of int: %lu bits\n", sizeof(int) * 8);
+    printf("Size of long: %lu bits\n", sizeof(long) * 8);
+
+    return 0;
 }

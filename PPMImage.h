@@ -5,6 +5,8 @@
 
 
 #define PPM_HEADER_FORMAT "P6\n%d %d\n%d\n"
+#define PPM_SIZE_FORMAT "%d %d"
+#define PPM_RGB_FORMAT "%d"
 
 /* 
  * This is a component that holds all the data of an 
@@ -115,11 +117,14 @@ bool has_ppm_extension(char* fp);
  * Copy of the image at the filepath
  *
  * Errors:
- * Filepath was invalid
+ * Filepath did not end in .ppm
+ * Unable to open file
+ * Unable to read file
  * Invalid image format
  * Invalid image size
  * Invalid rgb component
  * File does not have 8-bit components
+ * Unable to allocate memory for image
  * Error in loading image
  * */
 PPMImage* PPMImage_load(char* fp);
@@ -159,6 +164,7 @@ bool PPMImage_equal_dimensions(PPMImage* img1, PPMImage* img2);
 
 /*
  * This function compares the difference in pixel values of the images
+ * Relies on integers being 32 bits long
  *
  * Parameters:
  * img1 - Non NULL pointer to a PPMImage
@@ -169,6 +175,21 @@ bool PPMImage_equal_dimensions(PPMImage* img1, PPMImage* img2);
  * If either value, or both are NULL -> -1
  * */
 int PPMImage_compare(PPMImage* img1, PPMImage* img2);
+
+/*
+ * This function compares the difference in pixel values of the images
+ * Larger differences in each pixel are weighted higher, as they are cubed
+ * Relies on longs being 64bits long
+ *
+ * Parameters:
+ * img1 - Non NULL pointer to a PPMImage
+ * img2 - Non NULL pointer to a PPMImage
+ *
+ * Return:
+ * Integer evaluation -> 0 - (PIXEL_COLOR_VALUE-1)*3*width*height
+ * If either value, or both are NULL -> -1
+ * */
+long PPMImage_compare_weighted(PPMImage* img1, PPMImage* img2);
 
 /*
  * Saves a given PPMImage to a specified filepath
