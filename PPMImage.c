@@ -26,12 +26,10 @@ PPMImage* PPMImage_new(int width, int height){
         exit(1);
     }
     
-    int x, y, i;
-    for(y = 0; y < img->y; y++){
-        for(x = 0; x < img->x; x++){
-            i = y * img->x + x;
-            img->data[i] = *PPMPixel_set(&img->data[i], 0, 0, 0);
-        }
+    int i, lim;
+    lim = img->x * img->y;
+    for(i = 0; i < lim; i++){
+        img->data[i] = *PPMPixel_set(&img->data[i], 0, 0, 0);
     }
 
     return img;
@@ -82,12 +80,10 @@ PPMImage* PPMImage_set_background(PPMImage* image, unsigned char R, unsigned cha
         fprintf(stderr, "PPMImage_set_pixel: RGB values were out of bounds\n");
         exit(1);
     }
-    
-    int x, y;
-    for(y=0; y < image->y; y++){
-        for(x=0; x < image->x; x++){
-            image->data[y * image->x + x] = *PPMPixel_set(&image->data[y * image->x + x], R, G, B);
-        }
+    int i, lim;
+    lim = image->x * image->y;
+    for (i=0; i < lim; i++){
+        image->data[i] = *PPMPixel_set(&image->data[i], R, G, B);
     }
     return image;
 }
@@ -116,11 +112,10 @@ PPMImage* PPMImage_copy(PPMImage* img1, PPMImage* img2){
         img2 = PPMImage_new(img1->x, img1->y);
     }
 
-    int x, y;
-    for(y=0; y < img1->y; y++){
-        for(x=0; x < img1->x; x++){
-            img2->data[y * img1->x + x] = *PPMPixel_copy(&img1->data[y * img1->x + x], &img2->data[y * img1->x + x]);
-        }
+    int i, lim;
+    lim = img1->x * img1->y;
+    for (i=0; i < lim; i++){
+        img2->data[i] = *PPMPixel_copy(&img1->data[i], &img2->data[i]);
     }
     return img2;
 }
@@ -224,14 +219,12 @@ bool PPMImage_is_equal(PPMImage* img1, PPMImage* img2){
     if (dimensions == false){
         return false;
     }
-
-    int x, y, i;
-    for(y = 0; y < img1->y; y++){
-        for(x = 0; x < img1->x; x++){
-            i = y * img1->x + x;
-            if (!PPMPixel_is_equal(&img1->data[i], &img2->data[i])){
-                return false;
-            }
+    
+    int i, lim;
+    lim = img1->x * img1->y;
+    for(i = 0; i < lim; i++){
+        if (!PPMPixel_is_equal(&img1->data[i], &img2->data[i])){
+            return false;
         }
     }
     return true;
@@ -269,17 +262,15 @@ int PPMImage_compare(PPMImage* img1, PPMImage* img2){
     }
 
     short temp;
-    int x, y, i, total;
+    int i, lim, total;
+    lim = img1->x * img1->y;
     total = 0;
-    for(y = 0; y < img1->y; y++){
-        for(x = 0; x < img1->x; x++){
-            i = y * img1->x + x;
-            temp = PPMPixel_compare(&img1->data[i], &img2->data[i]);
-            if (temp == -1) {
-                return -1;
-            }
-            total += temp;
+    for(i = 0; i < lim; i++){
+        temp = PPMPixel_compare(&img1->data[i], &img2->data[i]);
+        if (temp == -1){
+            return -1;
         }
+        total += temp;
     }
     return total;
 }
@@ -295,19 +286,16 @@ long PPMImage_compare_weighted(PPMImage* img1, PPMImage* img2){
     if (!PPMImage_equal_dimensions(img1, img2)){
         return -1;
     }
-
-    int temp, x, y, i;
+    
+    int i, lim, temp;
     long total = 0;
-
-    for(y = 0; y < img1->y; y++){
-        for(x = 0; x < img1->x; x++){
-            i = y * img1->x + x;
-            temp = PPMPixel_compare(&img1->data[i], &img2->data[i]);
-            if (temp == -1) {
-                return -1;
-            }
-            total += (temp * temp);
+    lim = img1->x * img1->y;
+    for(i = 0; i < lim; i++){
+        temp = PPMPixel_compare(&img1->data[i], &img2->data[i]);
+        if (temp == -1){
+            return -1; 
         }
+        total += (temp * temp);
     }
     return total;
 }
@@ -377,61 +365,16 @@ int main(void){
     char* file_path = "7a.ppm";
     
     PPMImage* img1 = PPMImage_load(file_path);
-    PPMImage* img2 = PPMImage_new(200, 200);
-    PPMImage* img3 = PPMImage_new(200, 200);
-    
+    int itter = 10000;
 
-    img3 = PPMImage_set_background(img3, 122, 122, 122);
+    int i, dif;
+    for(i=0; i < itter; i++){
+        PPMImage* img2 = PPMImage_new(200, 200);
+        img2 = PPMImage_set_background(img2, 122, 122, 122);
+        dif = PPMImage_compare(img1, img2);
 
-    int c1, c2;
-
-    c1 = PPMImage_compare(img1, img2);
-    c2 = PPMImage_compare(img1, img3);
-
-    printf("Unweighted Comparison:\n . Image2 dif: %d \n . Image3 dif: %d \n", c1, c2);
-
-    long lc1, lc2;
-
-    lc1 = PPMImage_compare_weighted(img1, img2);
-    lc2 = PPMImage_compare_weighted(img1, img3);
-
-    printf("\nWeighted Comparison:\n . Image2 dif: %lu \n . Image3 dif: %lu \n", lc1, lc2);
-    
-    int cur_col, low_col, cur_dif, low_dif, low_w_col;
-    long cur_w_dif, low_w_dif;
-    low_dif = INT_MAX;
-    low_w_dif = LONG_MAX;
-    for(cur_col=0; cur_col <= PIXEL_COLOR_VALUE; cur_col++){
-        printf("%d-", cur_col);
-        img3 = PPMImage_set_background(img3, cur_col, cur_col, cur_col);
-
-        cur_dif = PPMImage_compare(img1, img3);
-        cur_w_dif = PPMImage_compare_weighted(img1, img3);
-
-        if (cur_dif < low_dif) {
-            low_dif = cur_dif;
-            low_col = cur_col;
-        }
-        if (cur_w_dif < low_w_dif) {
-            low_w_dif = cur_w_dif;
-            low_w_col = cur_col;
-        }
+        PPMImage_del(img2);
     }
-    printf("\n");
-
-    printf("Unweighted: Colour Value %03d : %d\n", low_col, low_dif);
-    printf("Weighted:   Colour Value %03d : %ld\n", low_w_col, low_w_dif);
-
-    return 0;
     
-
-    printf("Maximum value of short: %d\n", SHRT_MAX);
-    printf("Maximum value of int: %d\n", INT_MAX);
-    printf("Maximum value of long: %ld\n", LONG_MAX);
-
-    printf("Size of short: %lu bits\n", sizeof(short) * 8);
-    printf("Size of int: %lu bits\n", sizeof(int) * 8);
-    printf("Size of long: %lu bits\n", sizeof(long) * 8);
-
     return 0;
 }
