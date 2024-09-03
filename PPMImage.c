@@ -5,16 +5,16 @@
 #include <limits.h>
 
 
-PPMImage* PPMImage_new(int width, int height){
+PPMImage* PPMImage_init(int width, int height, int R, int G, int B){
     if (width < 1 || height < 1){
-        fprintf(stderr, "PPMImage_new: Height and/or Width of image were less than or equal to 0\n");
+        fprintf(stderr, "PPMImage_init: Height and/or Width of image were less than or equal to 0\n");
         exit(1);
     }
 
     PPMImage* img;
     img = (PPMImage *)malloc(sizeof(PPMImage));
     if (!img){
-        fprintf(stderr, "PPMImage_new: Unable to allocate memory\n");
+        fprintf(stderr, "PPMImage_init: Unable to allocate memory\n");
         exit(1);
     }
     
@@ -22,16 +22,34 @@ PPMImage* PPMImage_new(int width, int height){
     img->y = height;
     img->data = (PPMPixel*)malloc(img->x * img->y * sizeof(PPMPixel));
     if (!img){
-        fprintf(stderr, "PPMImage_new: Unable to allocate memory\n");
+        fprintf(stderr, "PPMImage_init: Unable to allocate memory\n");
         exit(1);
     }
     
     int i, lim;
     lim = img->x * img->y;
     for(i = 0; i < lim; i++){
-        img->data[i] = *PPMPixel_set(&img->data[i], 0, 0, 0);
+        img->data[i] = *PPMPixel_set(&img->data[i], R, G, B);
     }
+    return img;
 
+}
+
+PPMImage* PPMImage_new(int width, int height, int R, int G, int B){
+    if (
+            R < 0 || R > PIXEL_COLOR_VALUE ||
+            G < 0 || G > PIXEL_COLOR_VALUE ||
+            B < 0 || B > PIXEL_COLOR_VALUE){
+        fprintf(stderr, "PPMImage_new: RGB values were out of bounds\n");
+        exit(1);
+    }
+    
+    PPMImage* img = PPMImage_init(width, height, R, G, B);
+    return img;
+}
+
+PPMImage* PPMImage_new_blank(int width, int height){
+    PPMImage* img = PPMImage_init(width, height, 0, 0, 0);
     return img;
 }
 
@@ -109,7 +127,7 @@ PPMImage* PPMImage_copy(PPMImage* img1, PPMImage* img2){
     }
 
     if (img2 == NULL){
-        img2 = PPMImage_new(img1->x, img1->y);
+        img2 = PPMImage_new_blank(img1->x, img1->y);
     }
 
     int i, lim;
@@ -194,7 +212,7 @@ PPMImage* PPMImage_load(char* fp){
     while (fgetc(file) != '\n') ;
 
     // Memory allocation for the image
-    img = PPMImage_new(x, y);
+    img = PPMImage_new_blank(x, y);
     if (!img || !img->data){
         fprintf(stderr, "PPMImage_load: Unable to allocate memory for image\n");
         exit(1);
@@ -369,8 +387,7 @@ int main(void){
 
     int i, dif;
     for(i=0; i < itter; i++){
-        PPMImage* img2 = PPMImage_new(200, 200);
-        img2 = PPMImage_set_background(img2, 122, 122, 122);
+        PPMImage* img2 = PPMImage_new(200, 200, 122, 122, 122);
         dif = PPMImage_compare(img1, img2);
 
         PPMImage_del(img2);

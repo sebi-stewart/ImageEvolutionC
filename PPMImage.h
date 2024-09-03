@@ -19,12 +19,16 @@ typedef struct {
 } PPMImage;
 
 /*
+ * The function is not supposed to be called directly, but rather called via PPMImage_new or PPMImage_new_blank
  * This function simply creates a new instance of the PPMImage struct
  * The amount of memory allocated for pixels is dependent on the width and height inputs
  *
  * Parameters:
  * width - Pixel width or X value of the image as a positive integer
  * height - Pixel height or Y value of the image as a positive integer
+ * R - Red value
+ * G - Green value
+ * B - Blue value
  *
  * Return:
  * Pointer to a allocated PPMImage object
@@ -33,7 +37,50 @@ typedef struct {
  * Memory was not able to be allocated
  * Width or Height were not greater than 0
  * */
-PPMImage* PPMImage_new(int width, int height);
+PPMImage* PPMImage_init(int width, int height, int R, int G, int B);
+
+
+/*
+ * This function simply creates a new instance of the PPMImage struct and makes all the Pixeles therein the specified colour
+ * The amount of memory allocated for pixels is dependent on the width and height inputs
+ * Checks for validation on if RGB values are within bounds and if the Height and Width are within bounds
+ *
+ * Parameters:
+ * width - Pixel width or X value of the image as a positive integer
+ * height - Pixel height or Y value of the image as a positive integer
+ * R - Red value
+ * G - Green value
+ * B - Blue value
+ *
+ * Return:
+ * Pointer to a allocated PPMImage object
+ * 
+ * Errors:
+ * Memory was not able to be allocated (via PPMImage_init)
+ * Width or Height were not greater than 0 (via PPMImage_init)
+ * Pixel values either over 255 or under 0
+ * */
+PPMImage* PPMImage_new(int width, int height, int R, int G, int B);
+
+/* 
+ * This function simply creates a new instance of the PPMImage struct and makes all the Pixels therein black
+ * The amount of memory allocated for pixels is dependent on the width and height inputs
+ * Checks for validation on if the Height and Width are within bounds
+ * Parameters:
+ * width - Pixel width or X value of the image as a positive integer
+ * height - Pixel height or Y value of the image as a positive integer
+ * R - Red value
+ * G - Green value
+ * B - Blue value
+ *
+ * Return:
+ * Pointer to a allocated PPMImage object
+ * 
+ * Errors:
+ * Memory was not able to be allocated (via PPMImage_init)
+ * Width or Height were not greater than 0 (via PPMImage_init)
+ * */
+PPMImage* PPMImage_new_blank(int width, int height);
 
 /*
  * This function sets the value of the specified pixel to the values inputted
