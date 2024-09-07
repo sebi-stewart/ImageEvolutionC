@@ -3,12 +3,12 @@
 #include "PPMPixel.h"
 
 
-PPMPixel* PPMPixel_new(unsigned char R, unsigned char G, unsigned char B){
-    return PPMPixel_set((PPMPixel*) malloc(sizeof(PPMPixel)), R, G, B);
+PPMPixel* ppm_pixel_new(unsigned char R, unsigned char G, unsigned char B){
+    return ppm_pixel_set((PPMPixel*) malloc(sizeof(PPMPixel)), R, G, B);
 }
 
 
-PPMPixel* PPMPixel_set(PPMPixel* pixel, unsigned char R, unsigned char G, unsigned char B){
+PPMPixel* ppm_pixel_set(PPMPixel* pixel, unsigned char R, unsigned char G, unsigned char B){
     if (pixel == NULL){
         return NULL;
     }
@@ -28,9 +28,9 @@ PPMPixel* PPMPixel_set(PPMPixel* pixel, unsigned char R, unsigned char G, unsign
     return pixel;
 }
 
-PPMPixel* PPMPixel_copy(PPMPixel* p1, PPMPixel* p2){
+PPMPixel* ppm_pixel_copy(PPMPixel* p1, PPMPixel* p2){
     if (p1 == NULL && p2 == NULL){
-        fprintf(stderr, "PPMPixel_copy: Both pixels were NULL");
+        fprintf(stderr, "ppm_pixel_copy: Both pixels were NULL");
         exit(1);
     }
 
@@ -44,14 +44,14 @@ PPMPixel* PPMPixel_copy(PPMPixel* p1, PPMPixel* p2){
     }
 
     if (p2 == NULL){
-        p2 = PPMPixel_new(p1->R, p1->G, p1->B);
+        p2 = ppm_pixel_new(p1->R, p1->G, p1->B);
     } else {
-        p2 = PPMPixel_set(p2, p1->R, p1->G, p1->B);
+        p2 = ppm_pixel_set(p2, p1->R, p1->G, p1->B);
     }
     return p2;
 }
 
-bool PPMPixel_is_equal(PPMPixel* p1, PPMPixel* p2){
+bool ppm_pixel_is_equal(PPMPixel* p1, PPMPixel* p2){
     if (p1 == p2){
         return true;
     }
@@ -66,7 +66,7 @@ bool PPMPixel_is_equal(PPMPixel* p1, PPMPixel* p2){
     return false;
 }
 
-short PPMPixel_compare(PPMPixel* p1, PPMPixel* p2){
+short ppm_pixel_compare(PPMPixel* p1, PPMPixel* p2){
     if (p1 == NULL || p2 == NULL){
         return -1;
     }
@@ -78,14 +78,14 @@ short PPMPixel_compare(PPMPixel* p1, PPMPixel* p2){
     return sum;
 }
 
-char* PPMPixel_to_string(PPMPixel* pixel){
+char* ppm_pixel_to_string(PPMPixel* pixel){
     if (!pixel){
-        fprintf(stderr, "PPMPixel_to_string: Pixel was NULL\n");
+        fprintf(stderr, "ppm_pixel_to_string: Pixel was NULL\n");
             exit(1);
     }
     char* pstring = (char*)malloc(PPM_STRING_BUFFER);
     if (!pstring){
-        fprintf(stderr, "PPMPixel_to_string: Unable to allocate memory for string\n");
+        fprintf(stderr, "ppm_pixel_to_string: Unable to allocate memory for string\n");
         exit(1);
     }
     sprintf(pstring, PPM_STRING_FORMAT, pixel->R, pixel->G, pixel->B);
@@ -93,7 +93,7 @@ char* PPMPixel_to_string(PPMPixel* pixel){
     return pstring;
 }
 
-void PPMPixel_print(PPMPixel* pixel){
+void ppm_pixel_print(PPMPixel* pixel){
     if (pixel == NULL){
         printf("NULL");
         return;
@@ -103,24 +103,24 @@ void PPMPixel_print(PPMPixel* pixel){
 }
 
 //int main(void){
-//    PPMPixel* pixel1 = PPMPixel_new(10, 50, 20);
-//    PPMPixel* pixel2 = PPMPixel_new(15, 100, 40);
-//    PPMPixel* pixel3 = PPMPixel_new(20, 150, 60);
-//    PPMPixel* pixel4 = PPMPixel_new(25, 200, 80);
+//    PPMPixel* pixel1 = ppm_pixel_new(10, 50, 20);
+//    PPMPixel* pixel2 = ppm_pixel_new(15, 100, 40);
+//    PPMPixel* pixel3 = ppm_pixel_new(20, 150, 60);
+//    PPMPixel* pixel4 = ppm_pixel_new(25, 200, 80);
 //
-//    PPMPixel_print(pixel1);
-//    PPMPixel_print(pixel3);
-//    PPMPixel_print(pixel2);
-//    PPMPixel_print(pixel4);
+//    ppm_pixel_print(pixel1);
+//    ppm_pixel_print(pixel3);
+//    ppm_pixel_print(pixel2);
+//    ppm_pixel_print(pixel4);
 //
-//    printf("Pixel difference: %hd\n", PPMPixel_compare(pixel1, pixel2));
-//    printf("Pixel difference: %hd\n", PPMPixel_compare(pixel2, pixel3));
-//    printf("Pixel difference: %hd\n", PPMPixel_compare(pixel3, pixel4));
-//    printf("Pixel difference: %hd\n", PPMPixel_compare(pixel4, pixel1));
-//    printf("Pixel difference: %hd\n", PPMPixel_compare(pixel2, pixel1));
+//    printf("Pixel difference: %hd\n", ppm_pixel_compare(pixel1, pixel2));
+//    printf("Pixel difference: %hd\n", ppm_pixel_compare(pixel2, pixel3));
+//    printf("Pixel difference: %hd\n", ppm_pixel_compare(pixel3, pixel4));
+//    printf("Pixel difference: %hd\n", ppm_pixel_compare(pixel4, pixel1));
+//    printf("Pixel difference: %hd\n", ppm_pixel_compare(pixel2, pixel1));
 //
 //    PPMPixel pixel5 = {123, 123, 2234};
-//    PPMPixel_print(&pixel5);
+//    ppm_pixel_print(&pixel5);
 //
 //    return 0;
 //}

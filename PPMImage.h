@@ -19,7 +19,7 @@ typedef struct {
 } PPMImage;
 
 /*
- * The function is not supposed to be called directly, but rather called via PPMImage_new or PPMImage_new_blank
+ * The function is not supposed to be called directly, but rather called via ppm_image_new or ppm_image_new_blank
  * This function simply creates a new instance of the PPMImage struct
  * The amount of memory allocated for pixels is dependent on the width and height inputs
  *
@@ -37,7 +37,7 @@ typedef struct {
  * Memory was not able to be allocated
  * Width or Height were not greater than 0
  * */
-PPMImage* PPMImage_init(int width, int height, int R, int G, int B);
+PPMImage* ppm_image_init(int width, int height, int R, int G, int B);
 
 
 /*
@@ -56,11 +56,11 @@ PPMImage* PPMImage_init(int width, int height, int R, int G, int B);
  * Pointer to a allocated PPMImage object
  * 
  * Errors:
- * Memory was not able to be allocated (via PPMImage_init)
- * Width or Height were not greater than 0 (via PPMImage_init)
+ * Memory was not able to be allocated (via ppm_image_init)
+ * Width or Height were not greater than 0 (via ppm_image_init)
  * Pixel values either over 255 or under 0
  * */
-PPMImage* PPMImage_new(int width, int height, int R, int G, int B);
+PPMImage* ppm_image_new(int width, int height, int R, int G, int B);
 
 /* 
  * This function simply creates a new instance of the PPMImage struct and makes all the Pixels therein black
@@ -77,10 +77,10 @@ PPMImage* PPMImage_new(int width, int height, int R, int G, int B);
  * Pointer to a allocated PPMImage object
  * 
  * Errors:
- * Memory was not able to be allocated (via PPMImage_init)
- * Width or Height were not greater than 0 (via PPMImage_init)
+ * Memory was not able to be allocated (via ppm_image_init)
+ * Width or Height were not greater than 0 (via ppm_image_init)
  * */
-PPMImage* PPMImage_new_blank(int width, int height);
+PPMImage* ppm_image_new_blank(int width, int height);
 
 /*
  * This function sets the value of the specified pixel to the values inputted
@@ -100,7 +100,7 @@ PPMImage* PPMImage_new_blank(int width, int height);
  * X, or Y were out of bounds
  * RGB values were out of bounds
  * */
-PPMImage* PPMImage_set_pixel(PPMImage* image, int x, int y, unsigned char R, unsigned char G, unsigned char B);
+PPMImage* ppm_image_set_pixel(PPMImage* image, int x, int y, unsigned char R, unsigned char G, unsigned char B);
 
 /*
  * This function sets the value of all the pixels in an image
@@ -117,7 +117,7 @@ PPMImage* PPMImage_set_pixel(PPMImage* image, int x, int y, unsigned char R, uns
  * Image data was NULL
  * RGB values were out of bounds
  * */
-PPMImage* PPMImage_set_background(PPMImage* image, unsigned char R, unsigned char G, unsigned char B);
+PPMImage* ppm_image_set_background(PPMImage* image, unsigned char R, unsigned char G, unsigned char B);
 
 /*
  * This function copies the pixels from one image to another
@@ -136,7 +136,7 @@ PPMImage* PPMImage_set_background(PPMImage* image, unsigned char R, unsigned cha
  * Data of the non NULL image was NULL
  * Data of img1 was NULL
  * */
-PPMImage* PPMImage_copy(PPMImage* img1, PPMImage* img2);
+PPMImage* ppm_image_copy(PPMImage* img1, PPMImage* img2);
 
 /*
  * Check if a given filepath has the ppm extension
@@ -174,7 +174,7 @@ bool has_ppm_extension(char* fp);
  * Unable to allocate memory for image
  * Error in loading image
  * */
-PPMImage* PPMImage_load(char* fp);
+PPMImage* ppm_image_load(char* fp);
 
 /*
  * Check if two images are equal in either:
@@ -191,7 +191,7 @@ PPMImage* PPMImage_load(char* fp);
  * False if either input is NULL
  * False if both inputs do not equal eachother in pixel value and memory address
  * */
-bool PPMImage_is_equal(PPMImage* img1, PPMImage* img2);
+bool ppm_image_is_equal(PPMImage* img1, PPMImage* img2);
 
 /*
  * Simply check if two images have the same dimensions
@@ -207,7 +207,7 @@ bool PPMImage_is_equal(PPMImage* img1, PPMImage* img2);
  * False if both inputs do not equal eachother in height or width
  *
  * */
-bool PPMImage_equal_dimensions(PPMImage* img1, PPMImage* img2);
+bool ppm_image_equal_dimensions(PPMImage* img1, PPMImage* img2);
 
 /*
  * This function compares the difference in pixel values of the images
@@ -221,7 +221,7 @@ bool PPMImage_equal_dimensions(PPMImage* img1, PPMImage* img2);
  * Integer evaluation -> 0 - (PIXEL_COLOR_VALUE-1)*3*width*height
  * If either value, or both are NULL -> -1
  * */
-int PPMImage_compare(PPMImage* img1, PPMImage* img2);
+int ppm_image_compare(PPMImage* img1, PPMImage* img2);
 
 /*
  * This function compares the difference in pixel values of the images
@@ -236,7 +236,7 @@ int PPMImage_compare(PPMImage* img1, PPMImage* img2);
  * Integer evaluation -> 0 - (PIXEL_COLOR_VALUE-1)*3*width*height
  * If either value, or both are NULL -> -1
  * */
-long PPMImage_compare_weighted(PPMImage* img1, PPMImage* img2);
+long ppm_image_compare_weighted(PPMImage* img1, PPMImage* img2);
 
 /*
  * Saves a given PPMImage to a specified filepath
@@ -251,7 +251,7 @@ long PPMImage_compare_weighted(PPMImage* img1, PPMImage* img2);
  * Filepath was NULL
  * Filepath did not end in .ppm
  * */
-void PPMImage_save(PPMImage* image, char* fp);
+void ppm_image_save(PPMImage* image, char* fp);
 
 /*
  *  Frees the memory allocated to each image and the individual pixels as well
@@ -262,7 +262,7 @@ void PPMImage_save(PPMImage* image, char* fp);
  *  Errors:
  *  Image was NULL
  * */
-void PPMImage_del(PPMImage* image);
+void ppm_image_del(PPMImage* image);
 
 /*
  * Prints the instance of an image
@@ -273,7 +273,7 @@ void PPMImage_del(PPMImage* image);
  * Errors:
  * Image was NULL
  * */
-void PPMImage_print(PPMImage* image);
+void ppm_image_print(PPMImage* image);
 
 
 #endif

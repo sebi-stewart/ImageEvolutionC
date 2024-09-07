@@ -44,7 +44,7 @@ typedef struct {
  * Return:
  * Pointer to the newly created pixel struct
  * */
-PPMPixel* PPMPixel_new(unsigned char R, unsigned char G, unsigned char B);
+PPMPixel* ppm_pixel_new(unsigned char R, unsigned char G, unsigned char B);
 
 /*
  * This function sets the values of the pixel pointed to
@@ -61,7 +61,7 @@ PPMPixel* PPMPixel_new(unsigned char R, unsigned char G, unsigned char B);
  * Return:
  * Pointer to assigned pixel
  * */
-PPMPixel* PPMPixel_set(PPMPixel* pixel, unsigned char R, unsigned char G, unsigned char B);
+PPMPixel* ppm_pixel_set(PPMPixel* pixel, unsigned char R, unsigned char G, unsigned char B);
 
 /*
  * Copies the values of one pixel to the other
@@ -78,7 +78,7 @@ PPMPixel* PPMPixel_set(PPMPixel* pixel, unsigned char R, unsigned char G, unsign
  * Errors:
  * Both pointers were NULL
  * */
-PPMPixel* PPMPixel_copy(PPMPixel* p1, PPMPixel* p2);
+PPMPixel* ppm_pixel_copy(PPMPixel* p1, PPMPixel* p2);
 
 /*
  * This function checks if two pixels are equal to eachother
@@ -94,7 +94,7 @@ PPMPixel* PPMPixel_copy(PPMPixel* p1, PPMPixel* p2);
  * Bool evaluation -> true | false
  * 
  * */
-bool PPMPixel_is_equal(PPMPixel* p1, PPMPixel* p2);
+bool ppm_pixel_is_equal(PPMPixel* p1, PPMPixel* p2);
 
 /*
  * This function compares the how similar two pixels are in RGB values
@@ -108,7 +108,7 @@ bool PPMPixel_is_equal(PPMPixel* p1, PPMPixel* p2);
  * Short evaluation -> 0 - (PIXEL_COLOR_VALUE)*3
  * If either value, or both are NULL -1 is returned
  * */
-short PPMPixel_compare(PPMPixel* p1, PPMPixel* p2);
+short ppm_pixel_compare(PPMPixel* p1, PPMPixel* p2);
 
 /*
  * This function converts a given pixel into a string of format 
@@ -124,7 +124,7 @@ short PPMPixel_compare(PPMPixel* p1, PPMPixel* p2);
  * If the pixel is null, the function is terminated
  * Unable to allocate memory for the string
  * */
-char* PPMPixel_to_string(PPMPixel* pixel);
+char* ppm_pixel_to_string(PPMPixel* pixel);
 
 /*
  * Prints the pixel to the console
@@ -135,5 +135,5 @@ char* PPMPixel_to_string(PPMPixel* pixel);
  * Errors:
  * If pixel is null, the function is terminated
  * */
-void PPMPixel_print(PPMPixel* pixel);
+void ppm_pixel_print(PPMPixel* pixel);
 #endif
