@@ -2,6 +2,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+Corner* create_corner(int x, int y) {
+    if ((x < 0) || (y < 0)) {
+        fprintf(stderr, "create_corner: Corner out of bounds\n");
+    }
+    Corner* corner = malloc(sizeof(Corner));
+    corner->x = x;
+    corner->y = y;
+    return corner;
+}
+
 void push_corner(Polygon* poly, Corner* p_corner){
     if (poly == NULL){
         fprintf(stderr, "push_corner: Polygon was NULL\n");

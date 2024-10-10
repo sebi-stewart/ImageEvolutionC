@@ -19,6 +19,17 @@ typedef struct {
     Polygon* polygons;
 } PPMImageProcessor;
 
+/*
+ * This function will create a corner and return it
+ *
+ * Parameters:
+ * x - X position
+ * y - Y position
+ *
+ * Return:
+ * Pointer to the newly created corner
+ */
+Corner* create_corner(int x, int y);
 
 /*
  * This function will add a corner to the start of a polygon
@@ -79,4 +90,8 @@ void push_polygon(PPMImageProcessor* proc, Polygon* p_polygon);
  * head is NULL
  * */
 void pop_polygon(PPMImageProcessor* proc);
+
+
+
+PPMImageProcessor* create_ppm_image_processor();
 #endif
