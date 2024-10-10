@@ -51,7 +51,7 @@ PPMPixel* ppm_pixel_copy(PPMPixel* p1, PPMPixel* p2){
     return p2;
 }
 
-bool ppm_pixel_is_equal(PPMPixel* p1, PPMPixel* p2){
+bool ppm_pixel_is_equal(const PPMPixel* p1, const PPMPixel* p2){
     if (p1 == p2){
         return true;
     }
@@ -66,7 +66,7 @@ bool ppm_pixel_is_equal(PPMPixel* p1, PPMPixel* p2){
     return false;
 }
 
-short ppm_pixel_compare(PPMPixel* p1, PPMPixel* p2){
+short ppm_pixel_compare(const PPMPixel* p1, const PPMPixel* p2){
     if (p1 == NULL || p2 == NULL){
         return -1;
     }
@@ -93,7 +93,7 @@ char* ppm_pixel_to_string(PPMPixel* pixel){
     return pstring;
 }
 
-void ppm_pixel_print(PPMPixel* pixel){
+void ppm_pixel_print(const PPMPixel* pixel){
     if (pixel == NULL){
         printf("NULL");
         return;

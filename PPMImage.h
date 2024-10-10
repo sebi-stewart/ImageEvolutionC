@@ -31,17 +31,17 @@ typedef struct {
  * B - Blue value
  *
  * Return:
- * Pointer to a allocated PPMImage object
+ * Pointer to an allocated PPMImage object
  * 
  * Errors:
- * Memory was not able to be allocated
+ * Memory was not successfully allocated
  * Width or Height were not greater than 0
  * */
 PPMImage* ppm_image_init(int width, int height, int R, int G, int B);
 
 
 /*
- * This function simply creates a new instance of the PPMImage struct and makes all the Pixeles therein the specified colour
+ * This function simply creates a new instance of the PPMImage struct and makes all the Pixels therein the specified colour
  * The amount of memory allocated for pixels is dependent on the width and height inputs
  * Checks for validation on if RGB values are within bounds and if the Height and Width are within bounds
  *
@@ -53,10 +53,10 @@ PPMImage* ppm_image_init(int width, int height, int R, int G, int B);
  * B - Blue value
  *
  * Return:
- * Pointer to a allocated PPMImage object
+ * Pointer to an allocated PPMImage object
  * 
  * Errors:
- * Memory was not able to be allocated (via ppm_image_init)
+ * Memory was not successfully allocated (via ppm_image_init)
  * Width or Height were not greater than 0 (via ppm_image_init)
  * Pixel values either over 255 or under 0
  * */
@@ -74,10 +74,10 @@ PPMImage* ppm_image_new(int width, int height, int R, int G, int B);
  * B - Blue value
  *
  * Return:
- * Pointer to a allocated PPMImage object
+ * Pointer to an allocated PPMImage object
  * 
  * Errors:
- * Memory was not able to be allocated (via ppm_image_init)
+ * Memory was not successfully allocated (via ppm_image_init)
  * Width or Height were not greater than 0 (via ppm_image_init)
  * */
 PPMImage* ppm_image_new_blank(int width, int height);
@@ -86,9 +86,9 @@ PPMImage* ppm_image_new_blank(int width, int height);
  * This function sets the value of the specified pixel to the values inputted
  *
  * Parameters:
- * image - Non NULL pointer to the Image of which the pixel should be editted
- * x - Poistion of the pixel on the X-Axis
- * y - Poistion of the pixel on the Y-Axis
+ * image - Non-NULL pointer to the Image of which the pixel should be edited
+ * x - Position of the pixel on the X-Axis
+ * y - Position of the pixel on the Y-Axis
  * R, G, B - Colour values of the pixel
  *
  * Return:
@@ -106,7 +106,7 @@ PPMImage* ppm_image_set_pixel(PPMImage* image, int x, int y, unsigned char R, un
  * This function sets the value of all the pixels in an image
  *
  * Parameters:
- * image - Non NULL pointer to the Image of which the pixel should be editted
+ * image - Non-NULL pointer to the Image of which the pixel should be edited
  * R, G, B - Colour values of the pixel
  *
  * Return:
@@ -121,19 +121,19 @@ PPMImage* ppm_image_set_background(PPMImage* image, unsigned char R, unsigned ch
 
 /*
  * This function copies the pixels from one image to another
- * If either image is NULL then this one will be editted
- * If neither image is NULL, then img2 will be editted
+ * If either image is NULL then this one will be edited
+ * If neither image is NULL, then img2 will be edited
  *
  * Parameters:
  * img1 - Pointer to a PPMImage
  * img2 - Pointer to a PPMImage
  *
  * Return:
- * Pointer to the editted PPMImage
+ * Pointer to the edited PPMImage
  *
  * Errors:
  * Both images were NULL
- * Data of the non NULL image was NULL
+ * Data of the Non-NULL image was NULL
  * Data of img1 was NULL
  * */
 PPMImage* ppm_image_copy(PPMImage* img1, PPMImage* img2);
@@ -182,46 +182,46 @@ PPMImage* ppm_image_load(char* fp);
  *  or pixel values
  *
  * Parameters:
- * img1 - Non NULL pointer to a PPMImage
- * img2 - Non NULL pointer to a PPMImage
+ * img1 - Non-NULL pointer to a PPMImage
+ * img2 - Non-NULL pointer to a PPMImage
  *
  * Return:
  * True if two images are the same in either pixel value or memory address
  * True if both inputs are NULL
  * False if either input is NULL
- * False if both inputs do not equal eachother in pixel value and memory address
+ * False if both inputs do not equal each other in pixel value and memory address
  * */
-bool ppm_image_is_equal(PPMImage* img1, PPMImage* img2);
+bool ppm_image_is_equal(const PPMImage* img1, const PPMImage* img2);
 
 /*
  * Simply check if two images have the same dimensions
  *
  * Parameters:
- * img1 - Non NULL pointer to a PPMImage
- * img2 - Non NULL pointer to a PPMImage
+ * img1 - Non-NULL pointer to a PPMImage
+ * img2 - Non-NULL pointer to a PPMImage
  *
  * Return:
  * True if two images are the same height and width
  * True if both inputs are NULL
  * False if either input is NULL
- * False if both inputs do not equal eachother in height or width
+ * False if both inputs do not equal each other in height or width
  *
  * */
-bool ppm_image_equal_dimensions(PPMImage* img1, PPMImage* img2);
+bool ppm_image_equal_dimensions(const PPMImage* img1, const PPMImage* img2);
 
 /*
  * This function compares the difference in pixel values of the images
  * Relies on integers being 32 bits long
  *
  * Parameters:
- * img1 - Non NULL pointer to a PPMImage
- * img2 - Non NULL pointer to a PPMImage
+ * img1 - Non-NULL pointer to a PPMImage
+ * img2 - Non-NULL pointer to a PPMImage
  *
  * Return:
  * Integer evaluation -> 0 - (PIXEL_COLOR_VALUE-1)*3*width*height
  * If either value, or both are NULL -> -1
  * */
-int ppm_image_compare(PPMImage* img1, PPMImage* img2);
+int ppm_image_compare(const PPMImage* img1, const PPMImage* img2);
 
 /*
  * This function compares the difference in pixel values of the images
@@ -229,20 +229,20 @@ int ppm_image_compare(PPMImage* img1, PPMImage* img2);
  * Relies on longs being 64bits long
  *
  * Parameters:
- * img1 - Non NULL pointer to a PPMImage
- * img2 - Non NULL pointer to a PPMImage
+ * img1 - Non-NULL pointer to a PPMImage
+ * img2 - Non-NULL pointer to a PPMImage
  *
  * Return:
  * Integer evaluation -> 0 - (PIXEL_COLOR_VALUE-1)*3*width*height
  * If either value, or both are NULL -> -1
  * */
-long ppm_image_compare_weighted(PPMImage* img1, PPMImage* img2);
+long ppm_image_compare_weighted(const PPMImage* img1, const PPMImage* img2);
 
 /*
  * Saves a given PPMImage to a specified filepath
  *
  * Parameters:
- * image - Non NULL pointer to a PPMImage
+ * image - Non-NULL pointer to a PPMImage
  * fp - Filepath of where to be saved
  *
  * Errors:
@@ -257,7 +257,7 @@ void ppm_image_save(PPMImage* image, char* fp);
  *  Frees the memory allocated to each image and the individual pixels as well
  *
  *  Parameters:
- *  image - Non NULL pointer to a PPMImage
+ *  image - Non-NULL pointer to a PPMImage
  *
  *  Errors:
  *  Image was NULL
@@ -268,7 +268,7 @@ void ppm_image_del(PPMImage* image);
  * Prints the instance of an image
  *
  * Parameters:
- * image - Non NULL pointer to a PPMImage
+ * image - Non-NULL pointer to a PPMImage
  *
  * Errors:
  * Image was NULL

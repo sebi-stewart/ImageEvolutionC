@@ -73,7 +73,7 @@ PPMPixel* ppm_pixel_set(PPMPixel* pixel, unsigned char R, unsigned char G, unsig
  * p2 - Pointer to a Pixel
  *
  * Return:
- * Pointer to the pixel that was editted
+ * Pointer to the pixel that was edited
  *
  * Errors:
  * Both pointers were NULL
@@ -81,14 +81,14 @@ PPMPixel* ppm_pixel_set(PPMPixel* pixel, unsigned char R, unsigned char G, unsig
 PPMPixel* ppm_pixel_copy(PPMPixel* p1, PPMPixel* p2);
 
 /*
- * This function checks if two pixels are equal to eachother
+ * This function checks if two pixels are equal to each other
  * If both inputs are null it returns true
  * If they are not equal or if only one is null, it returns false
  * If they are both equal it returns true
  *
  * Parameters:
- * p1 - A non null pointer to the first pixel
- * p2 - A non null pointer to the second pixel
+ * p1 - A Non-NULL pointer to the first pixel
+ * p2 - A Non-NULL pointer to the second pixel
  *
  * Return: 
  * Bool evaluation -> true | false
@@ -97,12 +97,12 @@ PPMPixel* ppm_pixel_copy(PPMPixel* p1, PPMPixel* p2);
 bool ppm_pixel_is_equal(PPMPixel* p1, PPMPixel* p2);
 
 /*
- * This function compares the how similar two pixels are in RGB values
+ * This function compares how similar two pixels are in RGB values
  * We expect the same result if the inputs aka p1 and p2 were swapped
  * 
  * Parameters:
- * p1 - A non null pointer to the first pixel
- * p2 - A non null pointer to the second pixel 
+ * p1 - A Non-NULL pointer to the first pixel
+ * p2 - A Non-NULL pointer to the second pixel 
  *
  * Return:
  * Short evaluation -> 0 - (PIXEL_COLOR_VALUE)*3
@@ -115,7 +115,7 @@ short ppm_pixel_compare(PPMPixel* p1, PPMPixel* p2);
  * Uses the P3_STRING_FORMAT
  *
  * Parameters:
- * pixel - A non null pointer to the pixel
+ * pixel - A Non-NULL pointer to the pixel
  *
  * Return:
  * Pointer to a char array of the pixel
@@ -130,7 +130,7 @@ char* ppm_pixel_to_string(PPMPixel* pixel);
  * Prints the pixel to the console
  *
  * Parameters:
- * pixel - A non null pointer to a pixel
+ * pixel - A Non-NULL pointer to a pixel
  *
  * Errors:
  * If pixel is null, the function is terminated

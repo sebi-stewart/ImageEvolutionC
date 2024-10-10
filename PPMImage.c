@@ -1,18 +1,17 @@
+// ReSharper disable CppJoinDeclarationAndAssignment
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "PPMImage.h"
-#include <limits.h>
 
 
-PPMImage* ppm_image_init(int width, int height, int R, int G, int B){
+PPMImage* ppm_image_init(const int width, const int height, const int R, const int G, const int B){
     if (width < 1 || height < 1){
         fprintf(stderr, "ppm_image_init: Height and/or Width of image were less than or equal to 0\n");
         exit(1);
     }
 
-    PPMImage* img;
-    img = (PPMImage *)malloc(sizeof(PPMImage));
+    PPMImage *img = (PPMImage *) malloc(sizeof(PPMImage));
     if (!img){
         fprintf(stderr, "ppm_image_init: Unable to allocate memory\n");
         exit(1);
@@ -21,21 +20,16 @@ PPMImage* ppm_image_init(int width, int height, int R, int G, int B){
     img->x = width;
     img->y = height;
     img->data = (PPMPixel*)malloc(img->x * img->y * sizeof(PPMPixel));
-    if (!img){
-        fprintf(stderr, "ppm_image_init: Unable to allocate memory\n");
-        exit(1);
-    }
-    
-    int i, lim;
-    lim = img->x * img->y;
-    for(i = 0; i < lim; i++){
+
+    const int lim = img->x * img->y;
+    for(int i = 0; i < lim; i++){
         img->data[i] = *ppm_pixel_set(&img->data[i], R, G, B);
     }
     return img;
 
 }
 
-PPMImage* ppm_image_new(int width, int height, int R, int G, int B){
+PPMImage* ppm_image_new(const int width, const int height, const int R, const int G, const int B){
     if (
             R < 0 || R > PIXEL_COLOR_VALUE ||
             G < 0 || G > PIXEL_COLOR_VALUE ||
@@ -157,15 +151,13 @@ bool has_ppm_extension(char* fp){
 
 PPMImage* ppm_image_load(char* fp){
     char buff[16];
-    PPMImage* img;
-    FILE *file;
 
     if (!has_ppm_extension(fp)){
         fprintf(stderr, "ppm_image_load: File didn't end in PPM or was not long enough\n");
         exit(1);
     }
 
-    file = fopen(fp, "rb");
+    FILE *file = fopen(fp, "rb");
     if (!file){
         fprintf(stderr, "ppm_image_load: Unable to open file\n");
         exit(1);
@@ -186,7 +178,7 @@ PPMImage* ppm_image_load(char* fp){
     // Check for comments
     c = getc(file);
     while (c == '#') {
-        while (getc(file) != '\n') ;
+        while (getc(file) != '\n') {}
         c = getc(file);
     }
     ungetc(c, file);
@@ -209,10 +201,10 @@ PPMImage* ppm_image_load(char* fp){
         exit(1);
     }
 
-    while (fgetc(file) != '\n') ;
+    while (fgetc(file) != '\n') {}
 
     // Memory allocation for the image
-    img = ppm_image_new_blank(x, y);
+    PPMImage *img = ppm_image_new_blank(x, y);
     if (!img || !img->data){
         fprintf(stderr, "ppm_image_load: Unable to allocate memory for image\n");
         exit(1);
@@ -229,7 +221,7 @@ PPMImage* ppm_image_load(char* fp){
 
 }
 
-bool ppm_image_is_equal(PPMImage* img1, PPMImage* img2){
+bool ppm_image_is_equal(const PPMImage* img1, const PPMImage* img2){
     if (img1 == img2){
         return true;
     }
@@ -249,7 +241,7 @@ bool ppm_image_is_equal(PPMImage* img1, PPMImage* img2){
 }
 
 
-bool ppm_image_equal_dimensions(PPMImage* img1, PPMImage* img2){
+bool ppm_image_equal_dimensions(const PPMImage* img1, const PPMImage* img2){
     if (img1 == img2){
         return true;
     }
@@ -267,7 +259,7 @@ bool ppm_image_equal_dimensions(PPMImage* img1, PPMImage* img2){
 
 }
 
-int ppm_image_compare(PPMImage* img1, PPMImage* img2){
+int ppm_image_compare(const PPMImage* img1, const PPMImage* img2){
     if (img1 == NULL || img2 == NULL){
         return -1;
     }
@@ -293,7 +285,7 @@ int ppm_image_compare(PPMImage* img1, PPMImage* img2){
     return total;
 }
 
-long ppm_image_compare_weighted(PPMImage* img1, PPMImage* img2){
+long ppm_image_compare_weighted(const PPMImage* img1, const PPMImage* img2){
     if (img1 == NULL || img2 == NULL){
         return -1;
     }
@@ -377,21 +369,4 @@ void ppm_image_print(PPMImage* image){
         }
         printf("\n");
     }
-}
-
-int main(void){
-    char* file_path = "7a.ppm";
-    
-    PPMImage* img1 = ppm_image_load(file_path);
-    int itter = 10000;
-
-    int i, dif;
-    for(i=0; i < itter; i++){
-        PPMImage* img2 = ppm_image_new(200, 200, 122, 122, 122);
-        dif = ppm_image_compare(img1, img2);
-
-        ppm_image_del(img2);
-    }
-    
-    return 0;
 }

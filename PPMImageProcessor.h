@@ -1,5 +1,5 @@
-#ifndef _PPMIMAGE_PROCESSER_H
-#define _PPMIMAGE_PROCESSER_H
+#ifndef _PPMIMAGE_PROCESSOR_H
+#define _PPMIMAGE_PROCESSOR_H
 
 #include "PPMImage.h"
 
