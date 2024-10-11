@@ -9,13 +9,13 @@ typedef struct Corner{
 } Corner;
 
 typedef struct Polygon{
-    PPMPixel color;
+    PPMPixel* color;
     Corner* corners;
     struct Polygon* next;
 } Polygon;
 
 typedef struct {
-    PPMPixel background;
+    PPMPixel* background;
     Polygon* polygons;
 } PPMImageProcessor;
 
@@ -29,7 +29,7 @@ typedef struct {
  * Return:
  * Pointer to the newly created corner
  */
-Corner* create_corner(int x, int y);
+Corner* corner_init(int x, int y);
 
 /*
  * This function will add a corner to the start of a polygon
@@ -61,6 +61,10 @@ void push_corner(Polygon* poly, Corner* p_corner);
  * */
 void pop_corner(Polygon* poly);
 
+/*
+ * This function will create a blank polygon
+ */
+Polygon* polygon_init(unsigned char R, unsigned char G, unsigned char B);
 
 /*
  * This function will add a polygon to the start of a processor
@@ -93,5 +97,5 @@ void pop_polygon(PPMImageProcessor* proc);
 
 
 
-PPMImageProcessor* create_ppm_image_processor();
+PPMImageProcessor* ppm_image_processor_init(unsigned char R, unsigned char G, unsigned char B);
 #endif
