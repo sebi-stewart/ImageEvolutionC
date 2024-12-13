@@ -14,7 +14,7 @@
  * as well as the width and height of the image
  * */
 typedef struct {
-    int x, y;
+    unsigned int x, y;
     PPMPixel* data;
 } PPMImage;
 
@@ -37,7 +37,7 @@ typedef struct {
  * Memory was not successfully allocated
  * Width or Height were not greater than 0
  * */
-PPMImage* ppm_image_init(int width, int height, int R, int G, int B);
+PPMImage* ppm_image_init(unsigned int width, unsigned int height, unsigned int R, unsigned int G, unsigned int B);
 
 
 /*
@@ -60,7 +60,7 @@ PPMImage* ppm_image_init(int width, int height, int R, int G, int B);
  * Width or Height were not greater than 0 (via ppm_image_init)
  * Pixel values either over 255 or under 0
  * */
-PPMImage* ppm_image_new(int width, int height, int R, int G, int B);
+PPMImage* ppm_image_new(unsigned int width, unsigned int height, unsigned int R,unsigned int G, unsigned int B);
 
 /* 
  * This function simply creates a new instance of the PPMImage struct and makes all the Pixels therein black
@@ -80,7 +80,7 @@ PPMImage* ppm_image_new(int width, int height, int R, int G, int B);
  * Memory was not successfully allocated (via ppm_image_init)
  * Width or Height were not greater than 0 (via ppm_image_init)
  * */
-PPMImage* ppm_image_new_blank(int width, int height);
+PPMImage* ppm_image_new_blank(unsigned int width, unsigned int height);
 
 /*
  * This function sets the value of the specified pixel to the values inputted
@@ -221,7 +221,7 @@ bool ppm_image_equal_dimensions(const PPMImage* img1, const PPMImage* img2);
  * Integer evaluation -> 0 - (PIXEL_COLOR_VALUE-1)*3*width*height
  * If either value, or both are NULL -> -1
  * */
-int ppm_image_compare(const PPMImage* img1, const PPMImage* img2);
+unsigned int ppm_image_compare(const PPMImage* img1, const PPMImage* img2);
 
 /*
  * This function compares the difference in pixel values of the images

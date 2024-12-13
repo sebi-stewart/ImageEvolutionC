@@ -66,12 +66,12 @@ bool ppm_pixel_is_equal(const PPMPixel* p1, const PPMPixel* p2){
     return false;
 }
 
-short ppm_pixel_compare(const PPMPixel* p1, const PPMPixel* p2){
+unsigned int ppm_pixel_compare(const PPMPixel* p1, const PPMPixel* p2){
     if (p1 == NULL || p2 == NULL){
         return -1;
     }
 
-    short sum = 0;
+    int sum = 0;
     sum += abs(p1->R - p2->R);
     sum += abs(p1->G - p2->G);
     sum += abs(p1->B - p2->B);

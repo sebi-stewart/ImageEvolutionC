@@ -5,7 +5,7 @@
 #include "PPMImage.h"
 
 
-PPMImage* ppm_image_init(const int width, const int height, const int R, const int G, const int B){
+PPMImage* ppm_image_init(const unsigned int width, const unsigned int height, const unsigned int R, const unsigned int G, const unsigned int B){
     if (width < 1 || height < 1){
         fprintf(stderr, "ppm_image_init: Height and/or Width of image were less than or equal to 0\n");
         exit(1);
@@ -21,7 +21,7 @@ PPMImage* ppm_image_init(const int width, const int height, const int R, const i
     img->y = height;
     img->data = (PPMPixel*)malloc(img->x * img->y * sizeof(PPMPixel));
 
-    const int lim = img->x * img->y;
+    const unsigned int lim = img->x * img->y;
     for(int i = 0; i < lim; i++){
         img->data[i] = *ppm_pixel_set(&img->data[i], R, G, B);
     }
@@ -29,11 +29,11 @@ PPMImage* ppm_image_init(const int width, const int height, const int R, const i
 
 }
 
-PPMImage* ppm_image_new(const int width, const int height, const int R, const int G, const int B){
+PPMImage* ppm_image_new(const unsigned int width, const unsigned int height, const unsigned int R, const unsigned int G, const unsigned int B){
     if (
-            R < 0 || R > PIXEL_COLOR_VALUE ||
-            G < 0 || G > PIXEL_COLOR_VALUE ||
-            B < 0 || B > PIXEL_COLOR_VALUE){
+            R > PIXEL_COLOR_VALUE ||
+            G > PIXEL_COLOR_VALUE ||
+            B > PIXEL_COLOR_VALUE){
         fprintf(stderr, "ppm_image_new: RGB values were out of bounds\n");
         exit(1);
     }
@@ -42,7 +42,7 @@ PPMImage* ppm_image_new(const int width, const int height, const int R, const in
     return img;
 }
 
-PPMImage* ppm_image_new_blank(int width, int height){
+PPMImage* ppm_image_new_blank(const unsigned int width, const unsigned int height){
     PPMImage* img = ppm_image_init(width, height, 0, 0, 0);
     return img;
 }
@@ -92,7 +92,7 @@ PPMImage* ppm_image_set_background(PPMImage* image, unsigned char R, unsigned ch
         fprintf(stderr, "ppm_image_set_pixel: RGB values were out of bounds\n");
         exit(1);
     }
-    int i, lim;
+    unsigned int i, lim;
     lim = image->x * image->y;
     for (i=0; i < lim; i++){
         image->data[i] = *ppm_pixel_set(&image->data[i], R, G, B);
@@ -124,7 +124,7 @@ PPMImage* ppm_image_copy(PPMImage* img1, PPMImage* img2){
         img2 = ppm_image_new_blank(img1->x, img1->y);
     }
 
-    int i, lim;
+    unsigned int i, lim;
     lim = img1->x * img1->y;
     for (i=0; i < lim; i++){
         img2->data[i] = *ppm_pixel_copy(&img1->data[i], &img2->data[i]);
@@ -230,7 +230,7 @@ bool ppm_image_is_equal(const PPMImage* img1, const PPMImage* img2){
         return false;
     }
     
-    int i, lim;
+    unsigned int i, lim;
     lim = img1->x * img1->y;
     for(i = 0; i < lim; i++){
         if (!ppm_pixel_is_equal(&img1->data[i], &img2->data[i])){
@@ -259,7 +259,7 @@ bool ppm_image_equal_dimensions(const PPMImage* img1, const PPMImage* img2){
 
 }
 
-int ppm_image_compare(const PPMImage* img1, const PPMImage* img2){
+unsigned int ppm_image_compare(const PPMImage* img1, const PPMImage* img2){
     if (img1 == NULL || img2 == NULL){
         return -1;
     }
@@ -271,8 +271,7 @@ int ppm_image_compare(const PPMImage* img1, const PPMImage* img2){
         return -1;
     }
 
-    short temp;
-    int i, lim, total;
+    unsigned int i, lim, total, temp;
     lim = img1->x * img1->y;
     total = 0;
     for(i = 0; i < lim; i++){
@@ -297,7 +296,7 @@ long ppm_image_compare_weighted(const PPMImage* img1, const PPMImage* img2){
         return -1;
     }
     
-    int i, lim, temp;
+    unsigned int i, lim, temp;
     long total = 0;
     lim = img1->x * img1->y;
     for(i = 0; i < lim; i++){
@@ -361,7 +360,7 @@ void ppm_image_print(PPMImage* image){
         fprintf(stderr, "ppm_image_print: Image was NULL\n");
         exit(1);
     }
-    int x, y, i;
+    unsigned int x, y, i;
     for(y = 0; y < image->y; y++){
         for(x = 0; x < image->x; x++){
             i = y * image->x + x;

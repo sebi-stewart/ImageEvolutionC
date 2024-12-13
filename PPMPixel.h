@@ -108,7 +108,7 @@ bool ppm_pixel_is_equal(PPMPixel* p1, PPMPixel* p2);
  * Short evaluation -> 0 - (PIXEL_COLOR_VALUE)*3
  * If either value, or both are NULL -1 is returned
  * */
-short ppm_pixel_compare(PPMPixel* p1, PPMPixel* p2);
+unsigned int ppm_pixel_compare(PPMPixel* p1, PPMPixel* p2);
 
 /*
  * This function converts a given pixel into a string of format 

@@ -17,7 +17,18 @@ typedef struct Polygon{
 typedef struct {
     PPMPixel* background;
     Polygon* polygons;
+    unsigned int width, height;
 } PPMImageProcessor;
+
+typedef struct EdgeRow{
+    int y_min, y_max;
+    float x, m;
+    struct EdgeRow* next;
+} EdgeRow;
+
+typedef struct {
+ EdgeRow* rows;
+} EdgeTable;
 
 /*
  * This function will create a corner and return it
@@ -97,5 +108,6 @@ void pop_polygon(PPMImageProcessor* proc);
 
 
 
-PPMImageProcessor* ppm_image_processor_init(unsigned char R, unsigned char G, unsigned char B);
+PPMImageProcessor* ppm_image_processor_init(unsigned char R, unsigned char G, unsigned char B,
+                                            unsigned int width, unsigned int height);
 #endif
