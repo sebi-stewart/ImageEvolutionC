@@ -99,7 +99,6 @@ void ppm_pixel_print(const PPMPixel* pixel){
         return;
     }
     printf("%03d - %03d - %03d ", pixel->R, pixel->G, pixel->B);
-    
 }
 
 //int main(void){

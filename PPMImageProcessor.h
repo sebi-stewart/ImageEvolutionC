@@ -1,5 +1,5 @@
-#ifndef _PPMIMAGE_PROCESSOR_H
-#define _PPMIMAGE_PROCESSOR_H
+#ifndef _PPM_IMAGE_PROCESSOR_H
+#define _PPM_IMAGE_PROCESSOR_H
 
 #include "PPMImage.h"
 
@@ -20,14 +20,19 @@ typedef struct {
     unsigned int width, height;
 } PPMImageProcessor;
 
-typedef struct EdgeRow{
-    int y_min, y_max;
-    float x, m;
-    struct EdgeRow* next;
+typedef struct Edge{
+    int y_max;
+    float x, dx_dy;
+    struct Edge* next;
+} Edge;
+
+typedef struct EdgeRow {
+    Edge* edges;
 } EdgeRow;
 
 typedef struct {
- EdgeRow* rows;
+    int max_y;
+    EdgeRow* rows;
 } EdgeTable;
 
 /*

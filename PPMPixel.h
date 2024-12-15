@@ -1,5 +1,5 @@
-#ifndef _PPMPIXEL_H
-#define _PPMPIXEL_H
+#ifndef _PPM_PIXEL_H
+#define _PPM_PIXEL_H
 
 #include <stdbool.h>
 
@@ -94,7 +94,7 @@ PPMPixel* ppm_pixel_copy(PPMPixel* p1, PPMPixel* p2);
  * Bool evaluation -> true | false
  * 
  * */
-bool ppm_pixel_is_equal(PPMPixel* p1, PPMPixel* p2);
+bool ppm_pixel_is_equal(const PPMPixel* p1, const PPMPixel* p2);
 
 /*
  * This function compares how similar two pixels are in RGB values
@@ -108,7 +108,7 @@ bool ppm_pixel_is_equal(PPMPixel* p1, PPMPixel* p2);
  * Short evaluation -> 0 - (PIXEL_COLOR_VALUE)*3
  * If either value, or both are NULL -1 is returned
  * */
-unsigned int ppm_pixel_compare(PPMPixel* p1, PPMPixel* p2);
+unsigned int ppm_pixel_compare(const PPMPixel* p1, const PPMPixel* p2);
 
 /*
  * This function converts a given pixel into a string of format 
@@ -135,5 +135,5 @@ char* ppm_pixel_to_string(PPMPixel* pixel);
  * Errors:
  * If pixel is null, the function is terminated
  * */
-void ppm_pixel_print(PPMPixel* pixel);
+void ppm_pixel_print(const PPMPixel* pixel);
 #endif

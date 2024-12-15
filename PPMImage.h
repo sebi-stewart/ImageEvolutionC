@@ -1,5 +1,5 @@
-#ifndef _PPMIMAGE_H
-#define _PPMIMAGE_H
+#ifndef _PPM_IMAGE_H
+#define _PPM_IMAGE_H
 
 #include "PPMPixel.h"
 

@@ -150,37 +150,111 @@ void ppm_image_processor_free(PPMImageProcessor* proc) {
     free(proc);
 }
 
+int find_max_y(Corner* corners) {
+    if (corners == NULL) {
+        fprintf(stderr, "find_max_y: Polygon corners are NULL\n");
+        exit(1);
+    }
+
+    int max_y = corners->y;
+    Corner* current = corners;
+    while (current != NULL) { // Loop through the circular linked list
+        if (current->y > max_y) {
+            max_y = current->y;
+        }
+        current = current->next;
+    }
+
+    return max_y;
+}
+
 EdgeTable* generate_global_edge_table(Polygon* p_polygon){
     if (p_polygon == NULL){
         fprintf(stderr, "generate_global_edge_table: Polygon was empty\n");
         exit(1);
     }
-    int corners = 1;
+
+    // Count the corners and locate the head/tail of the polygon
     Corner* head = p_polygon->corners;
-    Corner* tail;
-    for(tail = p_polygon->corners; tail->next != NULL; tail = tail->next) {
-        corners++;
-    }
+    int y_max = find_max_y(head);
 
-    int vertices[corners][2];
-    int i;
-    for(tail = p_polygon->corners; tail->next != NULL; tail = tail->next){
-        vertices[i][0] = tail->x - tail->next->x;
-        vertices[i][1] = tail->y - tail->next->y;
-        i++;
-    }
-    vertices[corners-1][0] = tail->x - head->x;
-    vertices[corners-1][1] = tail->y - head->y;
 
+    // Allocate memory for the global edge table
     EdgeTable* global_edge_table = (EdgeTable*)malloc(sizeof(EdgeTable));
-    global_edge_table->rows = (EdgeRow*)malloc(sizeof(EdgeRow) * corners);
-    EdgeRow* row = (EdgeRow*)malloc(sizeof(EdgeRow));
+    global_edge_table->rows = (EdgeRow*)calloc(y_max + 1, sizeof(EdgeRow));
 
-    for(i=0; i < corners; i++){
-        row->
-    }
-    return global_edge_table
+    global_edge_table->max_y = 0;
+
+    int y_min;
+    float x_at_ymin;
+    float dx_dy;
+
+    Corner* current = head;
+    do {
+        Corner* next = current->next ? current->next : head; // Wrap around to head
+
+        if (current->y == next->y) { // Ignore horizontal edges
+            current = next;
+            continue;
+        }
+
+        y_min = (current->y < next->y) ? current->y : next->y;
+        y_max = (current->y > next->y) ? current->y : next->y;
+
+        // Calculate x at ymin
+        x_at_ymin = (float) ((current->y < next->y) ? current->x : next->x);
+
+        // Calculate inverse slope (dx/dy)
+        dx_dy = (float) (next->x - current->x) / (float)(next->y - current->y);
+
+        // Update max_y in the table
+        if (y_max > global_edge_table->max_y){
+            global_edge_table->max_y = y_max;
+        }
+
+        // Add the edge to the global edge table
+        Edge* new_edge = (Edge*)malloc(sizeof(Edge));
+
+        new_edge->x = x_at_ymin;
+        new_edge->y_max = y_max;
+        new_edge->dx_dy = dx_dy;
+        new_edge->next = global_edge_table->rows[y_min].edges;
+        global_edge_table->rows[y_min].edges = new_edge; // Prepend to list
+
+        printf("Adding edge at y_min %d: x: %f y_max: %d dx_dy: %f\n", y_min, x_at_ymin, y_max, dx_dy);
+        printf("Edge between Corner 1: %d, %d & Corner 2: %d, %d\n", current->x, current->y, next->x, next->y);
+
+        current = next;
+    } while (current != head);
+
+    return global_edge_table;
 }
+
+void traverse_global_edge_table(EdgeTable* edge_table) {
+    if (edge_table == NULL) {
+        printf("Edge table is NULL\n");
+        return;
+    }
+    printf("Iterating to %d\n", edge_table->max_y);
+    // Iterate through each row (ymin value) in the edge table
+    for (int ymin = 0; ymin <= edge_table->max_y; ymin++) {
+        EdgeRow* row = &edge_table->rows[ymin]; // Get the EdgeRow for this ymin
+        Edge* edge = row->edges;
+        if (edge == NULL){
+            continue;
+        }
+        while (edge != NULL) {
+            printf("Edge at ymin = %d:  x = %.2f, ymax = %d, dx/dy = %.2f\n",
+                   ymin,
+                   edge->x,
+                   edge->y_max,
+                   edge->dx_dy);
+            edge = edge->next; // Move to the next edge
+        }
+        printf("\n");
+    }
+}
+
 
 
 void ppm_image_processor_draw_polygon(PPMImage* canvas, Polygon* p_polygon) {
@@ -204,4 +278,22 @@ PPMImage* ppm_image_processor_draw_polygons(PPMImageProcessor* proc) {
         poly_head = poly_head->next;
     }
     return canvas;
+}
+
+int main(void){
+    Polygon* poly = polygon_init(100, 100, 100);
+    push_corner(poly, corner_init(10, 10));
+    push_corner(poly, corner_init(10, 20));
+    push_corner(poly, corner_init(20, 15));
+
+    EdgeTable* edgeTable = generate_global_edge_table(poly);
+
+    printf("Traversing Global Edge Table:\n");
+    traverse_global_edge_table(edgeTable);
+
+    pop_all_corners(poly);
+    free(poly);
+
+
+    return 0;
 }
