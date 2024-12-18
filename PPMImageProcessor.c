@@ -181,7 +181,15 @@ EdgeTable* generate_global_edge_table(Polygon* p_polygon){
 
     // Allocate memory for the global edge table
     EdgeTable* global_edge_table = (EdgeTable*)malloc(sizeof(EdgeTable));
+    if (global_edge_table == NULL){
+        fprintf(stderr, "generate_global_edge_table: Memory allocation for global_edge_table failed\n");
+        exit(1);
+    }
     global_edge_table->rows = (EdgeRow*)calloc(y_max + 1, sizeof(EdgeRow));
+    if (global_edge_table->rows == NULL){
+        fprintf(stderr, "generate_global_edge_table: Memory allocation for global_edge_table->rows failed\n");
+        exit(1);
+    }
 
     global_edge_table->max_y = 0;
 
@@ -243,9 +251,9 @@ void traverse_global_edge_table(EdgeTable* edge_table) {
         if (edge == NULL){
             continue;
         }
+        printf("Edge at ymin = %d -> ", ymin);
         while (edge != NULL) {
-            printf("Edge at ymin = %d:  x = %.2f, ymax = %d, dx/dy = %.2f\n",
-                   ymin,
+            printf("x = %.2f, ymax = %d, dx/dy = %.2f -> ",
                    edge->x,
                    edge->y_max,
                    edge->dx_dy);
@@ -255,10 +263,93 @@ void traverse_global_edge_table(EdgeTable* edge_table) {
     }
 }
 
-
+Edge* sorted_insert(Edge* head, Edge* new_edge) {
+    if (head == NULL || new_edge->x < head->x ||
+        (new_edge->x == head->x && new_edge->dx_dy < head->dx_dy)) {
+        new_edge->next = head;
+        return new_edge;
+    }
+    Edge* current = head;
+    while (current->next != NULL &&
+           (current->next->x < new_edge->x ||
+            (current->next->x == new_edge->x && current->next->dx_dy < new_edge->dx_dy))) {
+        current = current->next;
+    }
+    new_edge->next = current->next;
+    current->next = new_edge;
+    return head;
+}
 
 void ppm_image_processor_draw_polygon(PPMImage* canvas, Polygon* p_polygon) {
+    EdgeTable* global_edge_table = generate_global_edge_table(p_polygon);
 
+    Edge* active_edges = NULL;
+    Edge *temp, *cur_edge;
+    PPMPixel* cur_pixel;
+    int parity = 0, x = 0;
+
+    for(int ymin = 0; ymin <= global_edge_table->max_y; ymin++){
+        cur_edge = global_edge_table->rows[ymin].edges;
+
+        if (cur_edge == NULL && active_edges == NULL){
+            continue;
+        }
+
+        // Populate active edge table with new edges
+        while (cur_edge != NULL) {
+            temp = cur_edge;
+            cur_edge = cur_edge->next;
+            temp->next = NULL;  // Ensure the edge's next pointer is clean
+            active_edges = sorted_insert(active_edges, temp);
+        }
+
+        // Draw to canvas from active edge table
+        cur_edge = active_edges;
+        for (x = 0; x < canvas->x; x++){
+            if (cur_edge == NULL){
+                break;
+            }
+            if (x == (int)cur_edge->x){
+                parity = !parity;
+                cur_edge = cur_edge->next;
+            }
+
+            if(!parity){
+                continue;
+            }
+
+            if (!(x >= 0 && x < canvas->x && ymin < canvas->y)){
+                printf("Edge [%d | %d] was out of bounds for canvas [%d | %d] \n", x, ymin, canvas->x, canvas->y);
+                continue;
+            }
+            cur_pixel = &canvas->data[ymin * canvas->x + x];
+            ppm_pixel_set(cur_pixel, 255, 255, 255);
+        }
+
+        // Update active edge table (increment / decrement x)
+        Edge* prev = NULL;
+        cur_edge = active_edges;
+        while (cur_edge != NULL){
+            // Remove edge from active edges
+            if (cur_edge->y_max == ymin) {
+                Edge *to_free = cur_edge;
+                if (prev == NULL) {
+                    active_edges = cur_edge->next;
+                } else {
+                    prev->next = cur_edge->next;
+                }
+                cur_edge = cur_edge->next;
+                free(to_free);
+            } else {
+                // Update x value
+                cur_edge->x += cur_edge->dx_dy;
+                prev = cur_edge;
+                cur_edge = cur_edge-> next;
+            }
+        }
+    }
+    free(global_edge_table->rows);
+    free(global_edge_table);
 }
 
 PPMImage* ppm_image_processor_draw_polygons(PPMImageProcessor* proc) {
@@ -282,9 +373,10 @@ PPMImage* ppm_image_processor_draw_polygons(PPMImageProcessor* proc) {
 
 int main(void){
     Polygon* poly = polygon_init(100, 100, 100);
+
     push_corner(poly, corner_init(10, 10));
-    push_corner(poly, corner_init(10, 20));
     push_corner(poly, corner_init(20, 15));
+    push_corner(poly, corner_init(10, 20));
 
     EdgeTable* edgeTable = generate_global_edge_table(poly);
 
