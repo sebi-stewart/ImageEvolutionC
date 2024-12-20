@@ -1,7 +1,10 @@
-#ifndef _PPM_IMAGE_PROCESSOR_H
-#define _PPM_IMAGE_PROCESSOR_H
+#ifndef IMAGE_EVOLUTION_PPM_IMAGE_PROCESSOR_H
+#define IMAGE_EVOLUTION_PPM_IMAGE_PROCESSOR_H
 
 #include "PPMImage.h"
+
+
+#define DEBUG
 
 typedef struct Corner{
     int x, y;
@@ -76,6 +79,7 @@ void push_corner(Polygon* poly, Corner* p_corner);
  * head is NULL
  * */
 void pop_corner(Polygon* poly);
+void pop_all_corners(Polygon* poly);
 
 /*
  * This function will create a blank polygon
@@ -110,9 +114,18 @@ void push_polygon(PPMImageProcessor* proc, Polygon* p_polygon);
  * head is NULL
  * */
 void pop_polygon(PPMImageProcessor* proc);
-
+void pop_all_polygons(PPMImageProcessor* proc);
 
 
 PPMImageProcessor* ppm_image_processor_init(unsigned char R, unsigned char G, unsigned char B,
                                             unsigned int width, unsigned int height);
+
+void ppm_image_processor_free(PPMImageProcessor* proc);
+int find_max_y(Corner* corners);
+void traverse_global_edge_table(EdgeTable* edge_table);
+EdgeTable* generate_global_edge_table(Polygon* p_polygon);
+Edge* sorted_insert(Edge* head, Edge* new_edge);
+void ppm_image_processor_draw_polygon(PPMImage* canvas, Polygon* p_polygon);
+PPMImage* ppm_image_processor_draw_polygons(PPMImageProcessor* proc);
+
 #endif

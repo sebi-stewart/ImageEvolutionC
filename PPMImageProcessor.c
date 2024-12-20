@@ -168,6 +168,31 @@ int find_max_y(Corner* corners) {
     return max_y;
 }
 
+void traverse_global_edge_table(EdgeTable* edge_table) {
+    if (edge_table == NULL) {
+        printf("Edge table is NULL\n");
+        return;
+    }
+    printf("Iterating to %d\n", edge_table->max_y);
+    // Iterate through each row (ymin value) in the edge table
+    for (int ymin = 0; ymin <= edge_table->max_y; ymin++) {
+        EdgeRow* row = &edge_table->rows[ymin]; // Get the EdgeRow for this ymin
+        Edge* edge = row->edges;
+        if (edge == NULL){
+            continue;
+        }
+        printf("Edge at ymin = %d -> ", ymin);
+        while (edge != NULL) {
+            printf("x = %.2f, ymax = %d, dx/dy = %.2f -> ",
+                   edge->x,
+                   edge->y_max,
+                   edge->dx_dy);
+            edge = edge->next; // Move to the next edge
+        }
+        printf("\n");
+    }
+}
+
 EdgeTable* generate_global_edge_table(Polygon* p_polygon){
     if (p_polygon == NULL){
         fprintf(stderr, "generate_global_edge_table: Polygon was empty\n");
@@ -229,38 +254,19 @@ EdgeTable* generate_global_edge_table(Polygon* p_polygon){
         new_edge->next = global_edge_table->rows[y_min].edges;
         global_edge_table->rows[y_min].edges = new_edge; // Prepend to list
 
+        #ifdef DEBUG
         printf("Adding edge at y_min %d: x: %f y_max: %d dx_dy: %f\n", y_min, x_at_ymin, y_max, dx_dy);
         printf("Edge between Corner 1: %d, %d & Corner 2: %d, %d\n", current->x, current->y, next->x, next->y);
+        #endif
 
         current = next;
     } while (current != head);
 
-    return global_edge_table;
-}
+    #ifdef DEBUG
+    traverse_global_edge_table(global_edge_table);
+    #endif
 
-void traverse_global_edge_table(EdgeTable* edge_table) {
-    if (edge_table == NULL) {
-        printf("Edge table is NULL\n");
-        return;
-    }
-    printf("Iterating to %d\n", edge_table->max_y);
-    // Iterate through each row (ymin value) in the edge table
-    for (int ymin = 0; ymin <= edge_table->max_y; ymin++) {
-        EdgeRow* row = &edge_table->rows[ymin]; // Get the EdgeRow for this ymin
-        Edge* edge = row->edges;
-        if (edge == NULL){
-            continue;
-        }
-        printf("Edge at ymin = %d -> ", ymin);
-        while (edge != NULL) {
-            printf("x = %.2f, ymax = %d, dx/dy = %.2f -> ",
-                   edge->x,
-                   edge->y_max,
-                   edge->dx_dy);
-            edge = edge->next; // Move to the next edge
-        }
-        printf("\n");
-    }
+    return global_edge_table;
 }
 
 Edge* sorted_insert(Edge* head, Edge* new_edge) {
@@ -283,12 +289,17 @@ Edge* sorted_insert(Edge* head, Edge* new_edge) {
 void ppm_image_processor_draw_polygon(PPMImage* canvas, Polygon* p_polygon) {
     EdgeTable* global_edge_table = generate_global_edge_table(p_polygon);
 
+    unsigned char R = p_polygon->color->R;
+    unsigned char G = p_polygon->color->G;
+    unsigned char B = p_polygon->color->B;
+
+
     Edge* active_edges = NULL;
     Edge *temp, *cur_edge;
-    PPMPixel* cur_pixel;
     int parity = 0, x = 0;
 
     for(int ymin = 0; ymin <= global_edge_table->max_y; ymin++){
+        parity = 0;
         cur_edge = global_edge_table->rows[ymin].edges;
 
         if (cur_edge == NULL && active_edges == NULL){
@@ -309,21 +320,33 @@ void ppm_image_processor_draw_polygon(PPMImage* canvas, Polygon* p_polygon) {
             if (cur_edge == NULL){
                 break;
             }
-            if (x == (int)cur_edge->x){
-                parity = !parity;
-                cur_edge = cur_edge->next;
+            if (x-parity == (int)cur_edge->x){
+                if (cur_edge->next != NULL
+                && cur_edge->y_max == cur_edge->next->y_max
+                && (int)cur_edge->x == (int)cur_edge->next->x) {
+                    // Skip one parity toggle for converging edges
+                    cur_edge = cur_edge->next->next;
+                    // Draw pixel for converging edges
+                    ppm_image_set_pixel(canvas, x, ymin, R, G, B);
+                    #ifdef DEBUG
+                    printf("Skipping parity on converging edge\n");
+                    #endif
+                } else {
+                    #ifdef DEBUG
+                    printf("Toggling Parity\n");
+                    #endif
+                    parity = !parity;  // Toggle parity normally
+                    cur_edge = cur_edge->next;
+                }
             }
 
             if(!parity){
                 continue;
             }
-
-            if (!(x >= 0 && x < canvas->x && ymin < canvas->y)){
-                printf("Edge [%d | %d] was out of bounds for canvas [%d | %d] \n", x, ymin, canvas->x, canvas->y);
-                continue;
-            }
-            cur_pixel = &canvas->data[ymin * canvas->x + x];
-            ppm_pixel_set(cur_pixel, 255, 255, 255);
+            #ifdef DEBUG
+            printf("Edge [%d | %d] on canvas [%d | %d] \n", x, ymin, canvas->x, canvas->y);
+            #endif
+            ppm_image_set_pixel(canvas, x, ymin, R, G, B);
         }
 
         // Update active edge table (increment / decrement x)
@@ -369,23 +392,4 @@ PPMImage* ppm_image_processor_draw_polygons(PPMImageProcessor* proc) {
         poly_head = poly_head->next;
     }
     return canvas;
-}
-
-int main(void){
-    Polygon* poly = polygon_init(100, 100, 100);
-
-    push_corner(poly, corner_init(10, 10));
-    push_corner(poly, corner_init(20, 15));
-    push_corner(poly, corner_init(10, 20));
-
-    EdgeTable* edgeTable = generate_global_edge_table(poly);
-
-    printf("Traversing Global Edge Table:\n");
-    traverse_global_edge_table(edgeTable);
-
-    pop_all_corners(poly);
-    free(poly);
-
-
-    return 0;
 }
