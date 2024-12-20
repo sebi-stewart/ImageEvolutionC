@@ -1,11 +1,10 @@
-// ReSharper disable CppJoinDeclarationAndAssignment
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "PPMImage.h"
 
 
-PPMImage* ppm_image_init(const unsigned int width, const unsigned int height, const unsigned int R, const unsigned int G, const unsigned int B){
+PPMImage* ppm_image_init(const int width, const int height, const unsigned int R, const unsigned int G, const unsigned int B){
     if (width < 1 || height < 1){
         fprintf(stderr, "ppm_image_init: Height and/or Width of image were less than or equal to 0\n");
         exit(1);
@@ -19,17 +18,17 @@ PPMImage* ppm_image_init(const unsigned int width, const unsigned int height, co
     
     img->x = width;
     img->y = height;
-    img->data = (PPMPixel*)malloc(img->x * img->y * sizeof(PPMPixel));
+    img->data = (PPMPixel*)malloc(width * height * sizeof(PPMPixel));
 
-    const unsigned int lim = img->x * img->y;
+    const int lim = width * height;
     for(int i = 0; i < lim; i++){
-        img->data[i] = *ppm_pixel_set(&img->data[i], R, G, B);
+        ppm_pixel_set(&img->data[i], R, G, B);
     }
     return img;
 
 }
 
-PPMImage* ppm_image_new(const unsigned int width, const unsigned int height, const unsigned int R, const unsigned int G, const unsigned int B){
+PPMImage* ppm_image_new(const int width, const int height, const unsigned int R, const unsigned int G, const unsigned int B){
     if (
             R > PIXEL_COLOR_VALUE ||
             G > PIXEL_COLOR_VALUE ||
@@ -42,9 +41,8 @@ PPMImage* ppm_image_new(const unsigned int width, const unsigned int height, con
     return img;
 }
 
-PPMImage* ppm_image_new_blank(const unsigned int width, const unsigned int height){
-    PPMImage* img = ppm_image_init(width, height, 0, 0, 0);
-    return img;
+PPMImage* ppm_image_new_blank(const int width, const int height){
+    return ppm_image_init(width, height, 0, 0, 0);
 }
 
 PPMImage* ppm_image_set_pixel(PPMImage* image, int x, int y, unsigned char R, unsigned char G, unsigned char B){
@@ -70,7 +68,7 @@ PPMImage* ppm_image_set_pixel(PPMImage* image, int x, int y, unsigned char R, un
         exit(1);
     }
 
-    image->data[y * image->x + x] = *ppm_pixel_set(&image->data[y * image->x + x], R, G, B);
+    ppm_pixel_set(&image->data[y * image->x + x], R, G, B);
     return image;
 }
 
@@ -95,7 +93,7 @@ PPMImage* ppm_image_set_background(PPMImage* image, unsigned char R, unsigned ch
     unsigned int i, lim;
     lim = image->x * image->y;
     for (i=0; i < lim; i++){
-        image->data[i] = *ppm_pixel_set(&image->data[i], R, G, B);
+        ppm_pixel_set(&image->data[i], R, G, B);
     }
     return image;
 }
@@ -259,7 +257,7 @@ bool ppm_image_equal_dimensions(const PPMImage* img1, const PPMImage* img2){
 
 }
 
-unsigned int ppm_image_compare(const PPMImage* img1, const PPMImage* img2){
+int ppm_image_compare(const PPMImage* img1, const PPMImage* img2){
     if (img1 == NULL || img2 == NULL){
         return -1;
     }
@@ -271,10 +269,10 @@ unsigned int ppm_image_compare(const PPMImage* img1, const PPMImage* img2){
         return -1;
     }
 
-    unsigned int i, lim, total, temp;
+    int total, temp, lim;
     lim = img1->x * img1->y;
     total = 0;
-    for(i = 0; i < lim; i++){
+    for(int i = 0; i < lim; i++){
         temp = ppm_pixel_compare(&img1->data[i], &img2->data[i]);
         if (temp == -1){
             return -1;
