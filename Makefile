@@ -1,9 +1,9 @@
 CC = gcc
 
-all: PPMImageProcessor.o
+all: PPMEvolution.o
 
-PPMImageProcessor.o: PPMImageProcessor.c PPMImageProcessor.h PPMImage.c PPMImage.h PPMPixel.c PPMPixel.h
-	$(CC) -O0 -Wall PPMImageProcessor.c PPMImage.c PPMPixel.c -o PPMImageProcessor.o
+PPMEvolution.o:
+	$(CC) -O0 -Wall PPMEvolution.c PPMImageProcessor.c PPMImage.c PPMPixel.c -o PPMImageProcessor.o
 
 PPMImageProcessor.o:
 	$(CC) -O0 -Wall PPMImageProcessorMain.c PPMImageProcessor.c PPMImage.c PPMPixel.c -o PPMImageProcessor.o
