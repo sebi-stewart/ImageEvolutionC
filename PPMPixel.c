@@ -4,13 +4,15 @@
 
 
 PPMPixel* ppm_pixel_new(unsigned char R, unsigned char G, unsigned char B){
-    return ppm_pixel_set((PPMPixel*) malloc(sizeof(PPMPixel)), R, G, B);
+    PPMPixel* new_pixel = (PPMPixel*) malloc(sizeof(PPMPixel));
+    ppm_pixel_set(new_pixel, R, G, B);
+    return new_pixel;
 }
 
 
-PPMPixel* ppm_pixel_set(PPMPixel* pixel, unsigned char R, unsigned char G, unsigned char B){
+void ppm_pixel_set(PPMPixel* pixel, unsigned char R, unsigned char G, unsigned char B){
     if (pixel == NULL){
-        return NULL;
+        return;
     }
 
     if (R > PIXEL_COLOR_VALUE) {R = (unsigned char)PIXEL_COLOR_VALUE;}
@@ -24,8 +26,6 @@ PPMPixel* ppm_pixel_set(PPMPixel* pixel, unsigned char R, unsigned char G, unsig
     pixel->R = R;
     pixel->G = G;
     pixel->B = B;
-
-    return pixel;
 }
 
 PPMPixel* ppm_pixel_copy(PPMPixel* p1, PPMPixel* p2){
@@ -46,7 +46,7 @@ PPMPixel* ppm_pixel_copy(PPMPixel* p1, PPMPixel* p2){
     if (p2 == NULL){
         p2 = ppm_pixel_new(p1->R, p1->G, p1->B);
     } else {
-        p2 = ppm_pixel_set(p2, p1->R, p1->G, p1->B);
+        ppm_pixel_set(p2, p1->R, p1->G, p1->B);
     }
     return p2;
 }
@@ -66,7 +66,7 @@ bool ppm_pixel_is_equal(const PPMPixel* p1, const PPMPixel* p2){
     return false;
 }
 
-unsigned int ppm_pixel_compare(const PPMPixel* p1, const PPMPixel* p2){
+int ppm_pixel_compare(const PPMPixel* p1, const PPMPixel* p2){
     if (p1 == NULL || p2 == NULL){
         return -1;
     }

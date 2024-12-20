@@ -1,5 +1,5 @@
-#ifndef _PPM_PIXEL_H
-#define _PPM_PIXEL_H
+#ifndef IMAGE_EVOLUTION_PPM_PIXEL_H
+#define IMAGE_EVOLUTION_PPM_PIXEL_H
 
 #include <stdbool.h>
 
@@ -61,7 +61,7 @@ PPMPixel* ppm_pixel_new(unsigned char R, unsigned char G, unsigned char B);
  * Return:
  * Pointer to assigned pixel
  * */
-PPMPixel* ppm_pixel_set(PPMPixel* pixel, unsigned char R, unsigned char G, unsigned char B);
+void ppm_pixel_set(PPMPixel* pixel, unsigned char R, unsigned char G, unsigned char B);
 
 /*
  * Copies the values of one pixel to the other
@@ -108,7 +108,7 @@ bool ppm_pixel_is_equal(const PPMPixel* p1, const PPMPixel* p2);
  * Short evaluation -> 0 - (PIXEL_COLOR_VALUE)*3
  * If either value, or both are NULL -1 is returned
  * */
-unsigned int ppm_pixel_compare(const PPMPixel* p1, const PPMPixel* p2);
+int ppm_pixel_compare(const PPMPixel* p1, const PPMPixel* p2);
 
 /*
  * This function converts a given pixel into a string of format 
