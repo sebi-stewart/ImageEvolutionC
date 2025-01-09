@@ -4,12 +4,35 @@
 
 Corner* corner_init(const int x, const int y) {
     if ((x < 0) || (y < 0)) {
-        fprintf(stderr, "init_corner: Corner out of bounds\n");
+        fprintf(stderr, "corner_init: Corner out of bounds\n");
+        exit(1);
     }
     Corner* corner = malloc(sizeof(Corner));
+    if (corner == NULL){
+        fprintf(stderr, "corner_init: Memory allocation for corner failed\n");
+        exit(1);
+    }
     corner->x = x;
     corner->y = y;
     return corner;
+}
+
+void push_one_corner(Polygon* poly, Corner* p_corner){
+    if (poly == NULL){
+        fprintf(stderr, "push_one_corner: Polygon was NULL\n");
+        exit(1);
+    }
+    if (p_corner == NULL){
+        fprintf(stderr, "push_one_corner: Corner was NULL\n");
+        exit(1);
+    }
+    if (p_corner->next != NULL){
+        fprintf(stderr, "push_one_corner: Corner contained next element\n");
+        exit(1);
+    }
+
+    p_corner->next = poly->corners;
+    poly->corners = p_corner;
 }
 
 void push_corner(Polygon* poly, Corner* p_corner){
@@ -19,10 +42,6 @@ void push_corner(Polygon* poly, Corner* p_corner){
     }
     if (p_corner == NULL){
         fprintf(stderr, "push_corner: Corner was NULL\n");
-        exit(1);
-    }
-    if (p_corner->next != NULL){
-        fprintf(stderr, "push_corner: Corner contained next element\n");
         exit(1);
     }
     
@@ -65,9 +84,31 @@ void pop_all_corners(Polygon* poly) {
 Polygon* polygon_init(const unsigned char R, const unsigned char G, const unsigned char B) {
     PPMPixel* pixel = ppm_pixel_new(R, G, B);
     Polygon* poly = malloc(sizeof(Polygon));
+    if (poly == NULL){
+        fprintf(stderr, "polygon_init: Memory allocation for polygon failed\n");
+        exit(1);
+    }
 
     poly->color = pixel;
     return poly;
+}
+
+void push_one_polygon(PPMImageProcessor* proc, Polygon* p_polygon) {
+    if (proc == NULL) {
+        fprintf(stderr, "push_one_polygon: Image Processor was NULL\n");
+        exit(1);
+    }
+    if (p_polygon == NULL) {
+        fprintf(stderr, "push_one_polygon: Polygon was NULL\n");
+        exit(1);
+    }
+    if (p_polygon->next != NULL) {
+        fprintf(stderr, "push_one_polygon: Polygon contained next element\n");
+        exit(1);
+    }
+
+    p_polygon->next = proc->polygons;
+    proc->polygons = p_polygon;
 }
 
 void push_polygon(PPMImageProcessor* proc, Polygon* p_polygon) {
@@ -77,10 +118,6 @@ void push_polygon(PPMImageProcessor* proc, Polygon* p_polygon) {
     }
     if (p_polygon == NULL) {
         fprintf(stderr, "push_polygon: Polygon was NULL\n");
-        exit(1);
-    }
-    if (p_polygon->next != NULL) {
-        fprintf(stderr, "push_polygon: Polygon contained next element\n");
         exit(1);
     }
 
@@ -392,4 +429,66 @@ PPMImage* ppm_image_processor_draw_polygons(PPMImageProcessor* proc) {
         poly_head = poly_head->next;
     }
     return canvas;
+}
+
+Corner* ppm_image_processor_copy_corners(Corner* org_corner){
+    if (org_corner == NULL) {
+        return NULL; // No corners to copy
+    }
+
+    Corner* cur = org_corner;
+    Corner* copy = NULL;
+    Corner** copy_tail = &copy;
+
+    while(cur != NULL){
+        *copy_tail = corner_init(cur->x, cur->y);
+        copy_tail = &((*copy_tail)->next);
+
+        cur = cur->next;
+    }
+
+    return copy;
+}
+
+Polygon* ppm_image_processor_copy_polygons(Polygon* org_poly){
+    if (org_poly == NULL){
+        return NULL; // No polygons to copy
+    }
+    Polygon* cur = org_poly;
+    Corner* corner_copy = NULL;
+    Polygon* copy = NULL;
+    Polygon** copy_tail = &copy;
+
+    while (cur != NULL){
+        *copy_tail = polygon_init(cur->color->R, cur->color->G, cur->color->B);
+        (*copy_tail)->corners = ppm_image_processor_copy_corners(cur->corners);
+
+        copy_tail = &((*copy_tail)->next);
+        cur = cur->next;
+
+    }
+
+    return copy;
+}
+
+PPMImageProcessor* ppm_image_processor_copy(PPMImageProcessor* org_proc){
+    if (org_proc == NULL) {
+        return NULL; // No processor to copy
+    }
+
+    int R = org_proc->background->R;
+    int G = org_proc->background->G;
+    int B = org_proc->background->B;
+    unsigned int width = org_proc->width;
+    unsigned int height = org_proc->height;
+
+    PPMImageProcessor* new_proc = ppm_image_processor_init(R,G,B,width, height);
+
+    new_proc->polygons = ppm_image_processor_copy_polygons(org_proc->polygons);
+    if (new_proc->polygons == NULL && org_proc->polygons != NULL) {
+        fprintf(stderr, "ppm_image_processor_copy: Failed to copy polygons\n");
+        exit(1);
+    }
+
+    return new_proc;
 }

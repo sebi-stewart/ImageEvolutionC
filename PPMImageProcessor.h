@@ -63,7 +63,9 @@ Corner* corner_init(int x, int y);
  * Errors:
  * head is NULL
  * p_corner is NULL
+ * (more than one corner is being pushed)
  * */
+void push_one_corner(Polygon* poly, Corner* p_corner);
 void push_corner(Polygon* poly, Corner* p_corner);
 
 /*
@@ -87,7 +89,7 @@ void pop_all_corners(Polygon* poly);
 Polygon* polygon_init(unsigned char R, unsigned char G, unsigned char B);
 
 /*
- * This function will add a polygon to the start of a processor
+ * This function will add a single polygon to the start of a processor
  *
  * Parameters:
  * proc - Pointer to the pointer of the image processor
@@ -98,7 +100,9 @@ Polygon* polygon_init(unsigned char R, unsigned char G, unsigned char B);
  * Errors:
  * head is NULL
  * polygon is NULL
+ * (more than one polygon is to be added)
  * */
+void push_one_polygon(PPMImageProcessor* proc, Polygon* p_polygon);
 void push_polygon(PPMImageProcessor* proc, Polygon* p_polygon);
 
 /*
@@ -127,5 +131,6 @@ EdgeTable* generate_global_edge_table(Polygon* p_polygon);
 Edge* sorted_insert(Edge* head, Edge* new_edge);
 void ppm_image_processor_draw_polygon(PPMImage* canvas, Polygon* p_polygon);
 PPMImage* ppm_image_processor_draw_polygons(PPMImageProcessor* proc);
+PPMImageProcessor* ppm_image_processor_copy(PPMImageProcessor* org_proc);
 
 #endif

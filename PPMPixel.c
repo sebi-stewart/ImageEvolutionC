@@ -5,6 +5,10 @@
 
 PPMPixel* ppm_pixel_new(unsigned char R, unsigned char G, unsigned char B){
     PPMPixel* new_pixel = (PPMPixel*) malloc(sizeof(PPMPixel));
+    if (new_pixel == NULL){
+        fprintf(stderr, "ppm_pixel_new: Memory allocation for PPMPixel failed\n");
+        exit(1);
+    }
     ppm_pixel_set(new_pixel, R, G, B);
     return new_pixel;
 }
