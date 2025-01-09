@@ -82,9 +82,9 @@ void ppm_evolution_mutate_polygon_points(PPMImageProcessor* processor){
         return; // No polygons in the list
     }
 
-    Polygon* randomPolygon = ppm_evolution_random_polygon(processor->polygons);
+    Polygon* random_polygon = ppm_evolution_random_polygon(processor->polygons);
     double coord;
-    for (Corner* cur = randomPolygon->corners; cur != NULL; cur = cur->next){
+    for (Corner* cur = random_polygon->corners; cur != NULL; cur = cur->next){
         if (rand_float() > 0.1){
             coord = (double)cur->x - (rand_float() * 5 - 2.5);
             cur->x = narrow_coords((int)coord, (int)processor->width);
@@ -96,8 +96,37 @@ void ppm_evolution_mutate_polygon_points(PPMImageProcessor* processor){
     }
 }
 
-void ppm_evolution_mutate_polygon_colours(PPMImageProcessor* processor){
+int narrow_colors(double color){
+    if (color <= 0){
+        return 0;
+    } if (color >= 255){
+        return 255;
+    } return (int) color;
+}
 
+void ppm_evolution_mutate_polygon_colors(PPMImageProcessor* processor){
+    if (processor->polygons) {
+#ifdef DEBUG
+        fprintf(stderr, "ppm_evolution_mutate_polygon_colors: no polygon to mutate");
+#endif
+        return; // No polygons in the list
+    }
+
+    Polygon* random_polygon = ppm_evolution_random_polygon(processor->polygons);
+    PPMPixel* polygon_color = random_polygon->color;
+    double color;
+    if (rand_float() > 0.1){
+        color = (double)polygon_color->R - (rand_float() * 10 - 5);
+        polygon_color->R = narrow_colors(color);
+    }
+    if (rand_float() > 0.1){
+        color = (double)polygon_color->G - (rand_float() * 10 - 5);
+        polygon_color->G = narrow_colors(color);
+    }
+    if (rand_float() > 0.1){
+        color = (double)polygon_color->B - (rand_float() * 10 - 5);
+        polygon_color->B = narrow_colors(color);
+    }
 }
 
 void ppm_evolution_population_mutate(Population* population, bool elitist){
@@ -125,7 +154,7 @@ void ppm_evolution_population_mutate(Population* population, bool elitist){
             ppm_evolution_mutate_polygon_points(current_processor);
         }
         if (rand_float() < 0.5){
-            ppm_evolution_mutate_polygon_colours(current_processor);
+            ppm_evolution_mutate_polygon_colors(current_processor);
         }
     }
 }
