@@ -5,6 +5,7 @@
 
 
 #define DEBUG
+#define DEBUG_VERBOSE
 
 typedef struct Corner{
     int x, y;
@@ -80,7 +81,7 @@ void push_corner(Polygon* poly, Corner* p_corner);
  * Errors:
  * head is NULL
  * */
-void pop_corner(Polygon* poly);
+void pop_corner(Corner** head);
 void pop_all_corners(Polygon* poly);
 
 /*
@@ -117,8 +118,9 @@ void push_polygon(PPMImageProcessor* proc, Polygon* p_polygon);
  * Errors:
  * head is NULL
  * */
-void pop_polygon(PPMImageProcessor* proc);
+void pop_polygon(Polygon** head);
 void pop_all_polygons(PPMImageProcessor* proc);
+void print_polygon(Polygon* polygon);
 
 
 PPMImageProcessor* ppm_image_processor_init(unsigned char R, unsigned char G, unsigned char B,

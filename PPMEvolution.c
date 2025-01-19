@@ -39,7 +39,11 @@ void ppm_evolution_population_evaluate(PPMImage* org, Population* comparison){
 }
 
 float rand_float(){
-    return  (float)rand() / (float)RAND_MAX;
+    return (float)rand() / (float)RAND_MAX;
+}
+
+int rand_int(int max){
+    return (int)(rand_float() * (float)max);
 }
 
 Polygon* ppm_evolution_random_polygon(Polygon* polygons){
@@ -129,6 +133,40 @@ void ppm_evolution_mutate_polygon_colors(PPMImageProcessor* processor){
     }
 }
 
+void ppm_evolution_mutate_add_polygon(PPMImageProcessor* processor){
+    int polygon_count = 0;
+    for(Polygon* cur = processor->polygons; cur != NULL; cur = cur->next){
+        polygon_count++;
+    }
+    if (polygon_count >= 50){
+#ifdef DEBUG_VERBOSE
+        fprintf(stderr, "ppm_evolution_mutate_add_polygon: no individual to mutate");
+#endif
+        return;
+    }
+
+    int width = (int)processor->width;
+    int height = (int)processor->height;
+
+    Polygon* polygon = polygon_init(rand_int(255), rand_int(255), rand_int(255));
+
+    push_one_corner(polygon, corner_init(rand_int(width), rand_int(height)));
+    push_one_corner(polygon, corner_init(rand_int(width), rand_int(height)));
+    push_one_corner(polygon, corner_init(rand_int(width), rand_int(height)));
+
+    push_one_polygon(processor, polygon);
+}
+
+void ppm_evolution_mutate_remove_polygon(PPMImageProcessor* processor){
+    Polygon* random_polygon = ppm_evolution_random_polygon(processor->polygons);
+    Polygon* prev_polygon = processor->polygons;
+    if (prev_polygon == random_polygon){
+        processor->polygons = random_polygon->next;
+        pop_all_corners(random_polygon);
+        free
+    }
+}
+
 void ppm_evolution_population_mutate(Population* population, bool elitist){
     for (int i = 0; i < population->count; i++){
         Individual* current_individual = &population->pop[i];
@@ -155,6 +193,12 @@ void ppm_evolution_population_mutate(Population* population, bool elitist){
         }
         if (rand_float() < 0.5){
             ppm_evolution_mutate_polygon_colors(current_processor);
+        }
+        if (rand_float() < 0.02){
+            ppm_evolution_mutate_add_polygon(current_processor);
+        }
+        if (rand_float() < 0.005){
+            ppm_evolution_mutate_remove_polygon(current_processor);
         }
     }
 }

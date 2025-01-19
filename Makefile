@@ -1,21 +1,59 @@
 CC = gcc
+CFLAGS = -O0 -Wall
 
-all: PPMEvolution.o
+# Pixel Sources/Headers
+PPM_PIXEL_SOURCES = PPMPixel.c
+PPM_PIXEL_HEADERS = PPMPixel.h
 
-PPMEvolution.o:
-	$(CC) -O0 -Wall PPMEvolution.c PPMImageProcessor.c PPMImage.c PPMPixel.c -o PPMImageProcessor.o
+# Image Sources/Headers
+PPM_IMAGE_SOURCES = PPMImage.c $(PPM_PIXEL_SOURCES)
+PPM_IMAGE_HEADERS = PPMImage.h $(PPM_PIXEL_HEADERS)
 
-PPMImageProcessor.o:
-	$(CC) -O0 -Wall PPMImageProcessorMain.c PPMImageProcessor.c PPMImage.c PPMPixel.c -o PPMImageProcessor.o
+# Image Processor Sources/Headers
+PPM_IMAGE_PROCESSOR_SOURCES = PPMImageProcessor.c $(PPM_IMAGE_SOURCES)
+PPM_IMAGE_PROCESSOR_HEADERS = PPMImageProcessor.h $(PPM_IMAGE_HEADERS)
 
-PPMImage.o: PPMImage.c PPMImage.h PPMPixel.c PPMPixel.h
-	$(CC) -O0 -Wall PPMImage.c PPMPixel.c -o PPMImage.o
+# Evolution Sources/Headers
+PPM_EVOLUTION_SOURCES = PPMEvolution.c $(PPM_IMAGE_PROCESSOR_SOURCES)
+PPM_EVOLUTION_HEADERS = PPMEvolution.h $(PPM_IMAGE_PROCESSOR_HEADERS)
 
-PPMPixel.o: PPMPixel.c PPMPixel.h
-	$(CC) -O0 -Wall PPMPixel.c -o PPMPixel.o
+#Default Target
+all: run-PPMEvolution
+
+# PPMEvolution.o
+PPMEvolution.o: $(PPM_EVOLUTION_SOURCES) $(PPM_EVOLUTION_HEADERS)
+	$(CC) $(CFLAGS) $(PPM_EVOLUTION_SOURCES) -o PPMEvolution.o
+
+# PPMImageProcessor.o
+PPMImageProcessor.o: $(PPM_IMAGE_PROCESSOR_SOURCES) $(PPM_IMAGE_PROCESSOR_HEADERS) PPMImageProcessorMain.c
+	$(CC) $(CFLAGS)  $(PPM_IMAGE_PROCESSOR_SOURCES) PPMImageProcessorMain.c -o PPMImageProcessor.o
+
+#PPMImage.o
+PPMImage.o: $(PPM_IMAGE_SOURCES) $(PPM_IMAGE_HEADERS)
+	$(CC) $(CFLAGS) $(PPM_IMAGE_SOURCES) -o PPMImage.o
+
+# PPMPixel.o
+PPMPixel.o: $(PPM_PIXEL_SOURCES) $(PPM_PIXEL_HEADERS)
+	$(CC) $(CFLAGS) $(PPM_PIXEL_SOURCES) -o PPMPixel.o
+
+#Run PPMEvolution
+run-PPMEvolution: PPMEvolution.o
+	./PPMEvolution.o
+
+# Run PPMImageProcessor
+run-PPMImageProcessor: PPMImageProcessor.o
+	./PPMImageProcessor.o
+
+# Run PPMImage
+run-PPMImage: PPMImage.o
+	./PPMImage.o
+
+# Run PPMPixel
+run-PPMPixel: PPMPixel.o
+	./PPMPixel.o
 
 clean:
-	@rm -rf *.o
-	@echo "Deleted Output files"
-	@rm -rf *.ppm
-	@echo "Deleted Image files"
+	rm -f *.o
+	@echo "Deleted object files"
+	rm -f *.ppm
+	@echo "Deleted image files"

@@ -49,19 +49,15 @@ void push_corner(Polygon* poly, Corner* p_corner){
     poly->corners = p_corner;
 }
 
-void pop_corner(Polygon* poly){
-    if (poly == NULL) {
-        fprintf(stderr, "pop_corner: Polygon was NULL\n");
-        exit(1);
-    }
-    if (poly->corners == NULL) {
-        fprintf(stderr, "pop_corner: No corners to pop \n");
+void pop_corner(Corner** head){
+    if (head == NULL || *head == NULL) {
+        fprintf(stderr, "pop_corner: Corner was NULL\n");
         exit(1);
     }
 
-    Corner* temp = poly->corners;
-    poly->corners = poly->corners->next;
-    free(temp);
+    Corner* next = (*head)->next;
+    free(*head);
+    *head = next;
 }
 
 void pop_all_corners(Polygon* poly) {
@@ -79,6 +75,10 @@ void pop_all_corners(Polygon* poly) {
         poly->corners = poly->corners->next;
         free(temp);
     } while (poly->corners != NULL);
+}
+
+void print_corner(Corner* corner){
+    printf("[%d, %d]", corner->x, corner->y);
 }
 
 Polygon* polygon_init(const unsigned char R, const unsigned char G, const unsigned char B) {
@@ -125,24 +125,15 @@ void push_polygon(PPMImageProcessor* proc, Polygon* p_polygon) {
     proc->polygons = p_polygon;
 }
 
-void pop_polygon(PPMImageProcessor* proc) {
-    if (proc == NULL) {
-        fprintf(stderr, "pop_polygon: Image Processor was NULL\n");
-        exit(1);
-    }
-
-    if (proc->polygons == NULL) {
+void pop_polygon(Polygon** head) {
+    if (head == NULL || *head == NULL) {
         fprintf(stderr, "pop_polygon: No polygons to pop \n");
         exit(1);
     }
 
-    Polygon* temp = proc->polygons;
-    proc->polygons = proc->polygons->next;
-
-    if (temp->corners != NULL) {
-        pop_all_corners(temp);
-    }
-    free(temp);
+    Polygon* next = (*head)->next;
+    free(*head);
+    *head = next;
 }
 
 void pop_all_polygons(PPMImageProcessor* proc) {
@@ -163,6 +154,18 @@ void pop_all_polygons(PPMImageProcessor* proc) {
         }
         free(temp);
     } while (proc->polygons != NULL);
+}
+
+void print_polygon(Polygon* polygon){
+    printf("Polygon: ");
+    Corner* current_corner = polygon->corners;
+    while(current_corner->next != NULL){
+        print_corner(current_corner);
+        current_corner = current_corner->next;
+        printf(" -> ");
+    }
+    print_corner(current_corner);
+    printf("\n");
 }
 
 PPMImageProcessor* ppm_image_processor_init(const unsigned char R, const unsigned char G, const unsigned char B,
@@ -455,7 +458,6 @@ Polygon* ppm_image_processor_copy_polygons(Polygon* org_poly){
         return NULL; // No polygons to copy
     }
     Polygon* cur = org_poly;
-    Corner* corner_copy = NULL;
     Polygon* copy = NULL;
     Polygon** copy_tail = &copy;
 

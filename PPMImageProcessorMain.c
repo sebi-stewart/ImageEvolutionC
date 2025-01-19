@@ -2,8 +2,7 @@
 // Created by Sebastian Stewart on 20/12/2024.
 // Used to Run PPMImageProcessor
 
-#include "PPMImageProcessorMain.h"
-#include <stdio.h>
+#include "PPMImageProcessor.h"
 #include <stdlib.h>
 
 
@@ -13,15 +12,24 @@ int main(void){
     push_corner(poly, corner_init(10, 10));
     push_corner(poly, corner_init(20, 15));
     push_corner(poly, corner_init(10, 20));
+    push_corner(poly, corner_init(30, 30));
+    push_corner(poly, corner_init(40, 10));
 
-    EdgeTable* edgeTable = generate_global_edge_table(poly);
+    print_polygon(poly);
 
-    printf("Traversing Global Edge Table:\n");
-    traverse_global_edge_table(edgeTable);
+    Corner** del_corner = &poly->corners;
+    pop_corner(del_corner);
+
+    print_polygon(poly);
+
+    push_corner(poly, corner_init(30, 30));
+    del_corner = &poly->corners->next;
+    pop_corner(del_corner);
+
+    print_polygon(poly);
 
     pop_all_corners(poly);
     free(poly);
-
 
     return 0;
 }
