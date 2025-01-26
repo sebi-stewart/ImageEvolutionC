@@ -3,10 +3,6 @@
 
 #include "PPMImage.h"
 
-
-#define DEBUG
-#define DEBUG_VERBOSE
-
 typedef struct Corner{
     int x, y;
     struct Corner* next;
@@ -118,7 +114,7 @@ void push_polygon(PPMImageProcessor* proc, Polygon* p_polygon);
  * Errors:
  * head is NULL
  * */
-void pop_polygon(Polygon** head);
+void pop_polygon(Polygon** head, Polygon* target);
 void pop_all_polygons(PPMImageProcessor* proc);
 void print_polygon(Polygon* polygon);
 

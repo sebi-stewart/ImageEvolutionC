@@ -3,6 +3,10 @@
 
 #include <stdbool.h>
 
+#define DEBUG
+//#define DEBUG_VERBOSE
+#define DEBUG_IMAGE_SAVE
+
 /*
  * This defines how many colour values each RGB component could have
  * The maximum value for each RGB component is PIXEL_COLOR_VALUE

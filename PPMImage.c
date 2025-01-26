@@ -4,7 +4,7 @@
 #include "PPMImage.h"
 
 
-PPMImage* ppm_image_init(const int width, const int height, const unsigned int R, const unsigned int G, const unsigned int B){
+PPMImage* ppm_image_init(const unsigned int width, const unsigned int height, const unsigned int R, const unsigned int G, const unsigned int B){
     if (width < 1 || height < 1){
         fprintf(stderr, "ppm_image_init: Height and/or Width of image were less than or equal to 0\n");
         exit(1);
@@ -16,11 +16,11 @@ PPMImage* ppm_image_init(const int width, const int height, const unsigned int R
         exit(1);
     }
     
-    img->x = width;
-    img->y = height;
+    img->x = (int)width;
+    img->y = (int)height;
     img->data = (PPMPixel*)malloc(width * height * sizeof(PPMPixel));
 
-    const int lim = width * height;
+    const int lim = (int) (width * height);
     for(int i = 0; i < lim; i++){
         ppm_pixel_set(&img->data[i], R, G, B);
     }
