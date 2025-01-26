@@ -9,6 +9,9 @@
 
 void ppm_evolution_population_evaluate(PPMImage* org, Population* comparison){
     for (int i = 0; i < comparison->count; ++i) {
+#ifdef DEBUG
+        printf("%d: ", i);
+#endif
         Individual* current_individual = &comparison->pop[i];
         if (current_individual == NULL){
             #ifdef DEBUG
@@ -43,12 +46,22 @@ float rand_float(){
 }
 
 int rand_int(int max){
-    return (int)(rand_float() * (float)max);
+    if (max <= 0){
+        fprintf(stderr, "rand_int: max must be greater than 0\n");
+        exit(1);
+    }
+
+    int valid_range = RAND_MAX - (RAND_MAX % max);
+    int rand_val;
+    do {
+        rand_val = rand();
+    } while (rand_val >= valid_range);
+    return rand_val % max;
 }
 
 Polygon* ppm_evolution_random_polygon(Polygon* polygons){
     if (polygons == NULL) {
-        fprintf(stderr, "ppm_evolution_random_polygon: no polygon to mutate");
+        fprintf(stderr, "ppm_evolution_random_polygon: no polygon to mutate\n");
         exit(1); // No polygons in the list
     }
 
@@ -58,7 +71,7 @@ Polygon* ppm_evolution_random_polygon(Polygon* polygons){
     }
 
     // Generate a random index between 0 and polygon_count - 1
-    int random_index = (int)(rand_float() * polygon_count);
+    int random_index = (int)(rand_float() * (float)polygon_count);
 
     // Traverse the list to the random index
     Polygon* selected_polygon = polygons;
@@ -79,9 +92,9 @@ int narrow_coords(int coord, int max_val){
 }
 
 void ppm_evolution_mutate_polygon_points(PPMImageProcessor* processor){
-    if (processor->polygons) {
-#ifdef DEBUG
-        fprintf(stderr, "ppm_evolution_mutate_polygon_points: no polygon to mutate");
+    if (processor->polygons == NULL) {
+#ifdef DEBUG_VERBOSE
+        fprintf(stdout, "ppm_evolution_mutate_polygon_points: no polygon to mutate\n");
 #endif
         return; // No polygons in the list
     }
@@ -109,9 +122,9 @@ int narrow_colors(double color){
 }
 
 void ppm_evolution_mutate_polygon_colors(PPMImageProcessor* processor){
-    if (processor->polygons) {
-#ifdef DEBUG
-        fprintf(stderr, "ppm_evolution_mutate_polygon_colors: no polygon to mutate");
+    if (processor->polygons == NULL) {
+#ifdef DEBUG_VERBOSE
+        fprintf(stdout, "ppm_evolution_mutate_polygon_colors: no polygon to mutate\n");
 #endif
         return; // No polygons in the list
     }
@@ -140,7 +153,7 @@ void ppm_evolution_mutate_add_polygon(PPMImageProcessor* processor){
     }
     if (polygon_count >= 50){
 #ifdef DEBUG_VERBOSE
-        fprintf(stderr, "ppm_evolution_mutate_add_polygon: no individual to mutate");
+        fprintf(stderr, "ppm_evolution_mutate_add_polygon: no individual to mutate\n");
 #endif
         return;
     }
@@ -158,13 +171,21 @@ void ppm_evolution_mutate_add_polygon(PPMImageProcessor* processor){
 }
 
 void ppm_evolution_mutate_remove_polygon(PPMImageProcessor* processor){
-    Polygon* random_polygon = ppm_evolution_random_polygon(processor->polygons);
-    Polygon* prev_polygon = processor->polygons;
-    if (prev_polygon == random_polygon){
-        processor->polygons = random_polygon->next;
-        pop_all_corners(random_polygon);
-        free
+    if (processor->polygons == NULL){
+#ifdef DEBUG_VERBOSE
+        fprintf(stdout, "ppm_evolution_mutate_remove_polygon: no polygons to mutate\n");
+#endif
+        return;
     }
+    Polygon* random_polygon = ppm_evolution_random_polygon(processor->polygons);
+    if (random_polygon == NULL){
+#ifdef DEBUG
+        fprintf(stderr, "ppm_evolution_mutate_remove_polygon: NULL was returned for random_polygon\n");
+#endif
+        return;
+    }
+    pop_all_corners(random_polygon);
+    pop_polygon(&(processor->polygons), random_polygon);
 }
 
 void ppm_evolution_population_mutate(Population* population, bool elitist){
@@ -175,14 +196,14 @@ void ppm_evolution_population_mutate(Population* population, bool elitist){
         }
         if (current_individual == NULL) {
 #ifdef DEBUG
-            fprintf(stderr, "ppm_evolution_population_mutate: no individual to mutate");
+            fprintf(stderr, "ppm_evolution_population_mutate: no individual to mutate\n");
 #endif
             continue;
         }
         PPMImageProcessor* current_processor = current_individual->processor;
         if (current_processor == NULL) {
 #ifdef DEBUG
-            fprintf(stderr, "ppm_evolution_population_mutate: no processor to mutate");
+            fprintf(stderr, "ppm_evolution_population_mutate: no processor to mutate\n");
 #endif
             continue;
         }
@@ -216,14 +237,54 @@ void ppm_evolution_population_breed_copy_best(Population* population){
         }
     }
 }
-void ppm_evolution_population_survive_simple_kill_off(Population* population, int survival_rate){
-    int amount_to_delete = (int)((float)population->count  / 100.0 * (float) survival_rate);
-    int to_delete[amount_to_delete][2];
-    for(int i = 0; i < amount_to_delete; i++){
-        to_delete[i][0] = 0;
-        to_delete[i][1] = 0;
+
+void ppm_evolution_population_survive_trim_list(ToDelete* head, int amount_to_delete){
+    if (head == NULL){
+#ifdef DEBUG
+        fprintf(stdout, "ppm_evolution_population_survive_trim_list: head was NULL\n");
+        exit(1);
+#endif
     }
 
+    // Trim the linked list
+    int count = 1;
+    ToDelete* current = head;
+
+    // Traverse the list until the amount_to_delete node or the end of the list
+    while (current != NULL && count < amount_to_delete) {
+        count++;
+        current = current->next;
+    }
+
+    // Delete the rest
+    if (current == NULL){
+#ifdef DEBUG
+        fprintf(stdout, "ppm_evolution_population_survive_trim_list: current was NULL after traversing amount_to_delete\n");
+        exit(1);
+#endif
+    }
+
+    ToDelete* rest = current->next;
+    current->next = NULL; // Disconnect the lists
+
+    while(rest != NULL){ // Free ToDelete Memory of the items that are going to stay
+        ToDelete* temp = rest;
+        rest = rest->next;
+        free(temp);
+    }
+}
+
+void ppm_evolution_population_survive_simple_kill_off(Population* population, int survival_rate){
+    int amount_to_delete = (int)((float)population->count  / 100.0 * (float) survival_rate);
+    if (amount_to_delete <= 0 || amount_to_delete >= population->count){
+#ifdef DEBUG
+        fprintf(stdout, "ppm_evolution_population_survive_simple_kill_off: 0 elements to delete\n");
+        return;
+#endif
+    }
+
+    // Create a sorted linked list of all individuals;
+    ToDelete* to_delete_head = NULL;
     for (int i = 0; i < population->count; i++){
         Individual* current_individual = &population->pop[i];
         if (current_individual == NULL){
@@ -239,25 +300,58 @@ void ppm_evolution_population_survive_simple_kill_off(Population* population, in
             continue;
         }
 
-        // Loop through our list of items to be deleted, if we find one that is to be deleted we add it to the list
-        for (int j = 0; j < amount_to_delete; ++j) {
-            if (current_individual->eval > to_delete[j][0]){
-                to_delete[j][0] = current_individual->eval;
-                to_delete[j][1] = i;
-                break;
+        ToDelete* new_node = (ToDelete*) malloc(sizeof(ToDelete));
+        new_node->eval = current_individual->eval;
+        new_node->individual_id = i;
+        new_node->next = NULL;
+        if (to_delete_head == NULL){
+            // Insert at the beginning of the list on the first run
+            to_delete_head = new_node;
+        } else if (new_node->eval > to_delete_head->eval) {
+            // Insert at the beginning if the new_node has the highest eval
+            new_node->next = to_delete_head;
+            to_delete_head = new_node;
+        } else { // Traverse the list to find correct location
+            ToDelete* to_delete_current = to_delete_head;
+
+            while (to_delete_current->next != NULL && to_delete_current->next->eval > new_node->eval) {
+                to_delete_current = to_delete_current->next;
             }
+
+            new_node->next = to_delete_current->next;
+            to_delete_current->next = new_node;
         }
     }
 
-    int cur;
+    ppm_evolution_population_survive_trim_list(to_delete_head, amount_to_delete);
+
+#ifdef DEBUG_VERBOSE
+    printf("Amount to delete: %d\n", amount_to_delete);
+    printf("[\n");
+    for (ToDelete* current = to_delete_head; current != NULL; current = current->next){
+        printf("[%d, %d]\n", current->individual_id, current->eval);
+    }
+    printf("]\n");
+#endif
+
+
+    int delete_id;
     // Delete items referenced in the list and set them to NULL
-    for (int i = 0; i < amount_to_delete; i++){
-        cur = to_delete[i][1];
-        Individual* current_individual = &population->pop[cur];
+    for (ToDelete* current = to_delete_head; current != NULL; current = current->next){
+        delete_id = current->individual_id;
+        Individual* current_individual = &population->pop[delete_id];
 
         ppm_image_processor_free(current_individual->processor);
         current_individual->processor = NULL;
         current_individual->eval = -1;
+    }
+
+    // Free leftover ToDelete items
+    ToDelete* current = to_delete_head;
+    while(current != NULL){
+        ToDelete* temp = current;
+        current = current->next;
+        free(temp);
     }
 }
 
@@ -291,7 +385,10 @@ Population* ppm_evolution_population_create(int population_size, int width, int 
     // Initialize the processors;
     for (int i = 0; i < population_size; ++i) {
         Individual* current_individual = &population->pop[i];
-        current_individual->processor = ppm_image_processor_init(0, 0, 0, width, height);
+        current_individual->processor = ppm_image_processor_init(rand_int(256),
+                                                                 rand_int(256),
+                                                                 rand_int(256),
+                                                                 width, height);
         current_individual->eval = -1;
     }
 
@@ -326,10 +423,36 @@ void run(char* image_filepath, int population_size, int generation_count, int ra
 
     // Call the runner
     for (int i = 0; i < generation_count; ++i) {
+        printf("Generation %d\n", i);
         ppm_evolution_runner(base_image, population, &functions);
     }
+
+    PPMImage* best_image = ppm_image_processor_draw_polygons(population->best->processor);
+    ppm_image_save(best_image, "best.ppm");
+    ppm_image_del(best_image);
+    printf("Best image fitness of: %d\n", population->best->eval);
+
     
     ppm_image_del(base_image);
-    ppm_evolution_population_del(population);
 
+    int extra_polygon;
+    printf("User addition: ");
+    scanf("%d", &extra_polygon);
+
+    if (extra_polygon >= 0){
+        PPMImage* user_image = ppm_image_processor_draw_polygons((&population->pop[extra_polygon])->processor);
+        ppm_image_save(user_image, "user.ppm");
+        ppm_image_del(user_image);
+    }
+
+    ppm_evolution_population_del(population);
+}
+
+int main(){
+    run("images/7a.ppm", 100, 1, 1);
+
+//    PPMImage* best_image = ppm_image_load("images/7a.ppm");
+//    ppm_image_save(best_image, "best.ppm");
+//    ppm_image_del(best_image);
+    return 0;
 }

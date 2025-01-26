@@ -7,6 +7,8 @@
 
 #include "PPMImageProcessor.h"
 
+
+
 typedef struct Individual {
     PPMImageProcessor* processor;
     int eval;
@@ -26,6 +28,12 @@ typedef struct RunnerParams {
     bool elitist;
     void (*breed_func)(Population*);
 } RunnerParams;
+
+typedef struct ToDelete{
+    int individual_id;
+    int eval;
+    struct ToDelete* next;
+} ToDelete;
 
 void ppm_evolution_population_evaluate(PPMImage* org, Population* comp);
 
