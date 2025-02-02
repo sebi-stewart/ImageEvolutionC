@@ -1,7 +1,6 @@
 #include "PPMImageProcessor.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
 #include <time.h>
 
 Corner* corner_init(const int x, const int y) {

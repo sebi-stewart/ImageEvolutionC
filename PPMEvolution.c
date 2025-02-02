@@ -4,9 +4,7 @@
 
 #include "PPMEvolution.h"
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
-#include <math.h>
 #include <time.h>
 
 double evaluate_time = 0;
@@ -115,8 +113,8 @@ int narrow_coords(int coord, int max_val){
     if (coord < 0){
         return 0;
     }
-    if (coord >= max_val){
-        return max_val - 1;
+    if (coord > max_val){
+        return max_val;
     }
     return coord;
 }

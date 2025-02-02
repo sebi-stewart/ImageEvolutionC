@@ -3,7 +3,6 @@
 // Used to Run PPMImageProcessor
 
 #include "PPMImageProcessor.h"
-#include <stdlib.h>
 
 int main(void){
     Polygon* poly = polygon_init(100, 100, 100);
