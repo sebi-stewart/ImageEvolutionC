@@ -1,8 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include "PPMImage.h"
 
+void ppm_pixel_set_same_file(PPMPixel* pixel, unsigned char R, unsigned char G, unsigned char B){
+    pixel->R = R;
+    pixel->G = G;
+    pixel->B = B;
+}
 
 PPMImage* ppm_image_init(const unsigned int width, const unsigned int height, const unsigned int R, const unsigned int G, const unsigned int B){
     if (width < 1 || height < 1){
@@ -22,7 +28,7 @@ PPMImage* ppm_image_init(const unsigned int width, const unsigned int height, co
 
     const int lim = (int) (width * height);
     for(int i = 0; i < lim; i++){
-        ppm_pixel_set(&img->data[i], R, G, B);
+        ppm_pixel_set_same_file(&img->data[i], R, G, B);
     }
     return img;
 
@@ -259,6 +265,9 @@ bool ppm_image_equal_dimensions(const PPMImage* img1, const PPMImage* img2){
 
 int ppm_image_compare(const PPMImage* img1, const PPMImage* img2){
     if (img1 == NULL || img2 == NULL){
+#ifdef DEBUG
+        fprintf(stderr, "ppm_image_compare: pixels were null img1 %d img2 %d", img1==NULL, img2==NULL);
+#endif
         return -1;
     }
     if (img1 == img2){
@@ -266,6 +275,9 @@ int ppm_image_compare(const PPMImage* img1, const PPMImage* img2){
     }
 
     if (!ppm_image_equal_dimensions(img1, img2)){
+#ifdef DEBUG
+        fprintf(stderr, "ppm_image_compare: images don't equal dimensions img1 [%d,%d] img2 [%d,%d]", img1->x, img1->y, img2->x, img2->y);
+#endif
         return -1;
     }
 
@@ -275,9 +287,22 @@ int ppm_image_compare(const PPMImage* img1, const PPMImage* img2){
     for(int i = 0; i < lim; i++){
         temp = ppm_pixel_compare(&img1->data[i], &img2->data[i]);
         if (temp == -1){
+#ifdef DEBUG
+            fprintf(stderr, "ppm_image_compare: ppm_pixel_compare returned -1");
+#endif
             return -1;
         }
         total += temp;
+    }
+    return total;
+}
+
+int ppm_image_compare_unsafe(const PPMImage* img1, const PPMImage* img2){
+    int total, lim;
+    lim = img1->x * img1->y;
+    total = 0;
+    for(int i = 0; i < lim; i++){
+        total += ppm_pixel_compare_unsafe(&img1->data[i], &img2->data[i]);
     }
     return total;
 }
@@ -366,4 +391,8 @@ void ppm_image_print(PPMImage* image){
         }
         printf("\n");
     }
+}
+
+void print_image_init_time(double total_time){
+    printf("\nNothing\n");
 }

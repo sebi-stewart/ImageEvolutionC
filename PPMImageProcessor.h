@@ -129,6 +129,7 @@ EdgeTable* generate_global_edge_table(Polygon* p_polygon);
 Edge* sorted_insert(Edge* head, Edge* new_edge);
 void ppm_image_processor_draw_polygon(PPMImage* canvas, Polygon* p_polygon);
 PPMImage* ppm_image_processor_draw_polygons(PPMImageProcessor* proc);
+void print_timings(double total);
 PPMImageProcessor* ppm_image_processor_copy(PPMImageProcessor* org_proc);
 
 #endif

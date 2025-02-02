@@ -222,6 +222,8 @@ bool ppm_image_equal_dimensions(const PPMImage* img1, const PPMImage* img2);
  * If either value, or both are NULL -> -1
  * */
 int ppm_image_compare(const PPMImage* img1, const PPMImage* img2);
+int ppm_image_compare_unsafe(const PPMImage* img1, const PPMImage* img2);
+
 
 /*
  * This function compares the difference in pixel values of the images
@@ -275,5 +277,6 @@ void ppm_image_del(PPMImage* image);
  * */
 void ppm_image_print(PPMImage* image);
 
+void print_image_init_time(double total_time);
 
 #endif

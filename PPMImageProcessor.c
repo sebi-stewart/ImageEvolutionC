@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <time.h>
 
 Corner* corner_init(const int x, const int y) {
     if ((x < 0) || (y < 0)) {
@@ -91,6 +92,7 @@ Polygon* polygon_init(const unsigned char R, const unsigned char G, const unsign
     }
 
     poly->color = pixel;
+    poly->next = NULL;
     return poly;
 }
 
@@ -415,38 +417,35 @@ void ppm_image_processor_draw_polygon(PPMImage* canvas, Polygon* p_polygon) {
         }
 #endif
 
-        // Remove edges where ymin is >= ymax, except when ymax/ymin == global_edge_table->max_y
-        if(ymin != global_edge_table->max_y) {
-            prev = NULL;
-            cur_edge = active_edges;
-            while (cur_edge != NULL) {
-                // Remove edge from active edges
-                if (ymin >= cur_edge->y_max) {
-                    Edge *to_free = cur_edge;
-                    if (prev == NULL) {
-                        active_edges = cur_edge->next;
-                    } else {
-                        prev->next = cur_edge->next;
-                    }
-                    cur_edge = cur_edge->next;
-                    free(to_free);
+        // Remove edges where ymin is >= ymax,
+        prev = NULL;
+        cur_edge = active_edges;
+        while (cur_edge != NULL) {
+            // Remove edge from active edges
+            if (ymin >= cur_edge->y_max) {
+                Edge *to_free = cur_edge;
+                if (prev == NULL) {
+                    active_edges = cur_edge->next;
                 } else {
-                    prev = cur_edge;
-                    cur_edge = cur_edge->next;
+                    prev->next = cur_edge->next;
                 }
-            }
-        } else{
+                cur_edge = cur_edge->next;
+                free(to_free);
+
+                // Check if active edges is null now
+                if (active_edges == NULL){
 #ifdef DEBUG_IMAGE_SAVE
-            printf("\tHit last row, adding edge one last time\n");
+                    printf("\tActive edge was null\n");
 #endif
+                    continue;
+                }
+            } else {
+                prev = cur_edge;
+                cur_edge = cur_edge->next;
+            }
         }
 
-        if (active_edges == NULL){
-#ifdef DEBUG_IMAGE_SAVE
-            printf("\tActive edge was null\n");
-#endif
-            continue;
-        }
+
 
         // Draw to canvas from active edge table
         cur_edge = active_edges;
@@ -466,6 +465,7 @@ void ppm_image_processor_draw_polygon(PPMImage* canvas, Polygon* p_polygon) {
 #ifdef DEBUG_IMAGE_SAVE
                     printf("\t\tSkipping parity on converging edge [%d | %d]\n", x, ymin);
 #endif
+                    continue;
                 } else {
 #ifdef DEBUG_IMAGE_SAVE
                     printf("\tToggling Parity %s\n", !parity ? "on" : "off");
@@ -513,14 +513,20 @@ void ppm_image_processor_draw_polygon(PPMImage* canvas, Polygon* p_polygon) {
 #endif
 }
 
+double image_init_time = 0;
+double draw_polygon_time = 0;
 PPMImage* ppm_image_processor_draw_polygons(PPMImageProcessor* proc) {
     if (proc == NULL) {
         fprintf(stderr, "ppm_processor_draw_polygons: Image Processor was NULL\n");
         exit(1);
     }
+    clock_t begin, end;
 
+    begin = clock();
     PPMPixel* bg = proc->background;
     PPMImage* canvas = ppm_image_init(proc->width, proc->height, bg->R, bg->G, bg->B);
+    end = clock();
+    image_init_time += (double)(end - begin);
 
     if (proc->polygons == NULL) {
 #ifdef DEBUG_VERBOSE
@@ -529,12 +535,24 @@ PPMImage* ppm_image_processor_draw_polygons(PPMImageProcessor* proc) {
         return canvas;
     }
 
+    begin = clock();
     Polygon* poly_head = proc->polygons;
     while (poly_head != NULL) {
         ppm_image_processor_draw_polygon(canvas, poly_head);
         poly_head = poly_head->next;
     }
+    end = clock();
+    draw_polygon_time += (double)(end - begin);
     return canvas;
+}
+
+void print_timings(double total){
+    printf("\nImage init time: %f\n", image_init_time);
+    printf("Image init time: %f\n", image_init_time/total*100);
+
+    printf("\nDraw Polygon time: %f\n", draw_polygon_time);
+    printf("Draw Polygon time: %f\n", draw_polygon_time/total*100);
+
 }
 
 Corner* ppm_image_processor_copy_corners(Corner* org_corner){

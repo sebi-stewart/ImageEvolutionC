@@ -32,6 +32,12 @@ void ppm_pixel_set(PPMPixel* pixel, unsigned char R, unsigned char G, unsigned c
     pixel->B = B;
 }
 
+void ppm_pixel_set_unsafe(PPMPixel* pixel, unsigned char R, unsigned char G, unsigned char B){
+    pixel->R = R;
+    pixel->G = G;
+    pixel->B = B;
+}
+
 PPMPixel* ppm_pixel_copy(PPMPixel* p1, PPMPixel* p2){
     if (p1 == NULL && p2 == NULL){
         fprintf(stderr, "ppm_pixel_copy: Both pixels were NULL");
@@ -75,6 +81,14 @@ int ppm_pixel_compare(const PPMPixel* p1, const PPMPixel* p2){
         return -1;
     }
 
+    int sum = 0;
+    sum += abs(p1->R - p2->R);
+    sum += abs(p1->G - p2->G);
+    sum += abs(p1->B - p2->B);
+    return sum;
+}
+
+int ppm_pixel_compare_unsafe(const PPMPixel* p1, const PPMPixel* p2){
     int sum = 0;
     sum += abs(p1->R - p2->R);
     sum += abs(p1->G - p2->G);

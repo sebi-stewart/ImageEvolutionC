@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -O0 -Wall
+CFLAGS = -O3 -Wall
 
 # Pixel Sources/Headers
 PPM_PIXEL_SOURCES = PPMPixel.c
