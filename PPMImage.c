@@ -74,8 +74,12 @@ PPMImage* ppm_image_set_pixel(PPMImage* image, int x, int y, unsigned char R, un
         exit(1);
     }
 
-    ppm_pixel_set(&image->data[y * image->x + x], R, G, B);
+    ppm_pixel_set_unsafe(&image->data[y * image->x + x], R, G, B);
     return image;
+}
+
+void ppm_image_set_pixel_unsafe(PPMImage* image, int x, int y, unsigned char R, unsigned char G, unsigned char B){
+    ppm_pixel_set_unsafe(&image->data[y * image->x + x], R, G, B);
 }
 
 

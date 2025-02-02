@@ -377,11 +377,24 @@ Edge* sorted_insert(Edge* head, Edge* new_edge) {
     return head;
 }
 
+// Benchmarking
+double edge_table_generation = 0;
+double drawing_to_canvas = 0;
+
+void ppm_image_set_pixel_in_processor(PPMImage* image, int x, int y, unsigned char R, unsigned char G, unsigned char B){
+    ppm_pixel_set_unsafe(&image->data[y * image->x + x], R, G, B);
+}
+
 void ppm_image_processor_draw_polygon(PPMImage* canvas, Polygon* p_polygon) {
 #ifdef DEBUG_IMAGE_SAVE
     printf("ppm_image_processor_draw_polygon - start:\n");
 #endif
+    clock_t begin, end;
+
+    begin = clock();
     EdgeTable* global_edge_table = generate_global_edge_table(p_polygon);
+    end = clock();
+    edge_table_generation += (double)(end - begin);
 
     unsigned char R = p_polygon->color->R;
     unsigned char G = p_polygon->color->G;
@@ -445,6 +458,7 @@ void ppm_image_processor_draw_polygon(PPMImage* canvas, Polygon* p_polygon) {
         }
 
         // Draw to canvas from active edge table
+        begin = clock();
         cur_edge = active_edges;
         for (x = 0; x < canvas->x; x++){
             if (cur_edge == NULL){
@@ -458,7 +472,7 @@ void ppm_image_processor_draw_polygon(PPMImage* canvas, Polygon* p_polygon) {
                     // Skip one parity toggle for converging edges
                     cur_edge = cur_edge->next->next;
                     // Draw pixel for converging edges
-                    ppm_image_set_pixel(canvas, x, ymin, R, G, B);
+                    ppm_image_set_pixel_in_processor(canvas, x, ymin, R, G, B);
 #ifdef DEBUG_IMAGE_SAVE
                     printf("\t\tSkipping parity on converging edge [%d | %d]\n", x, ymin);
 #endif
@@ -478,8 +492,10 @@ void ppm_image_processor_draw_polygon(PPMImage* canvas, Polygon* p_polygon) {
 #ifdef DEBUG_IMAGE_SAVE
             printf("\t\tEdge [%d | %d] on canvas [%d | %d] \n", x, ymin, canvas->x, canvas->y);
 #endif
-            ppm_image_set_pixel(canvas, x, ymin, R, G, B);
+            ppm_image_set_pixel_in_processor(canvas, x, ymin, R, G, B);
         }
+        end = clock();
+        drawing_to_canvas += (double)(end - begin);
 
         // Update active edge table (increment / decrement x)
         for(cur_edge = active_edges; cur_edge != NULL; cur_edge = cur_edge->next){
@@ -548,6 +564,16 @@ void print_timings(double total){
 
     printf("\nDraw Polygon time: %f\n", draw_polygon_time);
     printf("Draw Polygon time: %f\n", draw_polygon_time/total*100);
+
+    printf("\nMaking the global edge table time: %f\n", edge_table_generation);
+    printf("Making the global edge table time: %f\n", edge_table_generation/draw_polygon_time*100);
+
+    printf("Drawing the pixels onto the canvas: %f\n", drawing_to_canvas);
+    printf("Drawing the pixels onto the canvas: %f\n", drawing_to_canvas/draw_polygon_time*100);
+
+    double rest = draw_polygon_time - drawing_to_canvas - edge_table_generation;
+    printf("Rest: %f\n", rest);
+    printf("Rest: %f\n", rest/draw_polygon_time*100);
 
 }
 

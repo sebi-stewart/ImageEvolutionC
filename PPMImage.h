@@ -101,6 +101,7 @@ PPMImage* ppm_image_new_blank(int width, int height);
  * RGB values were out of bounds
  * */
 PPMImage* ppm_image_set_pixel(PPMImage* image, int x, int y, unsigned char R, unsigned char G, unsigned char B);
+void ppm_image_set_pixel_unsafe(PPMImage* image, int x, int y, unsigned char R, unsigned char G, unsigned char B);
 
 /*
  * This function sets the value of all the pixels in an image
