@@ -21,7 +21,7 @@ typedef struct {
 } PPMImageProcessor;
 
 typedef struct Edge{
-    int y_max;
+    int y_max, comp_x_val;
     float x, dx_dy;
     struct Edge* next;
 } Edge;
@@ -31,7 +31,7 @@ typedef struct EdgeRow {
 } EdgeRow;
 
 typedef struct {
-    int max_y;
+    int max_y, min_y;
     EdgeRow* rows;
 } EdgeTable;
 

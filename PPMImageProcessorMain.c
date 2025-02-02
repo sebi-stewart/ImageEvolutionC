@@ -5,31 +5,44 @@
 #include "PPMImageProcessor.h"
 #include <stdlib.h>
 
-
 int main(void){
     Polygon* poly = polygon_init(100, 100, 100);
 
-    push_corner(poly, corner_init(10, 10));
-    push_corner(poly, corner_init(20, 15));
-    push_corner(poly, corner_init(10, 20));
-    push_corner(poly, corner_init(30, 30));
-    push_corner(poly, corner_init(40, 10));
+    push_corner(poly, corner_init(0, 0));
+    push_corner(poly, corner_init(4, 0));
+    push_corner(poly, corner_init(4, 4));
 
     print_polygon(poly);
 
-    Corner** del_corner = &poly->corners;
-    pop_corner(del_corner);
+    Polygon* poly2 = polygon_init(255, 0, 0);
 
-    print_polygon(poly);
+    push_corner(poly2, corner_init(7, 7));
+    push_corner(poly2, corner_init(7, 0));
+    push_corner(poly2, corner_init(2, 4));
 
-    push_corner(poly, corner_init(30, 30));
-    del_corner = &poly->corners->next;
-    pop_corner(del_corner);
+    print_polygon(poly2);
 
-    print_polygon(poly);
+    Polygon* poly3 = polygon_init(255, 255, 0);
 
-    pop_all_corners(poly);
-    free(poly);
+    push_corner(poly3, corner_init(0, 8));
+    push_corner(poly3, corner_init(8, 8));
+    push_corner(poly3, corner_init(0, 3));
+
+    print_polygon(poly3);
+
+    PPMImageProcessor* new_proc = ppm_image_processor_init(0, 0, 0, 8, 8);
+    push_one_polygon(new_proc, poly);
+    push_one_polygon(new_proc, poly2);
+    push_one_polygon(new_proc, poly3);
+    PPMImage* new_image = ppm_image_processor_draw_polygons(new_proc);
+    ppm_image_set_pixel(new_image, 1, 7, 100, 100, 100);
+    ppm_image_set_pixel(new_image, 3, 7, 100, 100, 100);
+    ppm_image_set_pixel(new_image, 5, 7, 100, 100, 100);
+    ppm_image_set_pixel(new_image, 7, 7, 100, 100, 100);
+    ppm_image_save(new_image, "test.ppm");
+
+    ppm_image_processor_free(new_proc);
+    ppm_image_del(new_image);
 
     return 0;
 }
