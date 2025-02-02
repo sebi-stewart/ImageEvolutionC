@@ -13,6 +13,7 @@ double breed_time = 0;
 double mutate_time = 0;
 
 double draw_polygons_time = 0;
+double draw_polygons_time2 = 0;
 double image_compare_time = 0;
 double image_delete_time = 0;
 
@@ -47,6 +48,12 @@ void ppm_evolution_population_evaluate(PPMImage* org, Population* comparison){
         PPMImage* cur_image = ppm_image_processor_draw_polygons(current_processor);
         end = clock();
         draw_polygons_time += (double)(end - begin);
+
+        begin = clock();
+        PPMImage* cur_image2 = ppm_image_processor_draw_polygons_alt(current_processor);
+        end = clock();
+        draw_polygons_time2 += (double)(end - begin);
+        ppm_image_del(cur_image2);
 
         begin = clock();
         current_individual->eval = ppm_image_compare_unsafe(org, cur_image);
@@ -511,14 +518,15 @@ void run(char* image_filepath, int population_size, int generation_count, int ra
 
     double evaluate_sum = draw_polygons_time + image_compare_time + image_delete_time;
     printf("Draw Polygon Time was:    %10.2f\n", draw_polygons_time);
+    printf("Draw Polygon alt Time was:    %10.2f\n", draw_polygons_time2);
     printf("Image Compare Time was:   %10.2f\n", image_compare_time);
     printf("Image Delete Time was: %10.2f\n\n", image_delete_time);
 
     printf("Draw Polygon Time %% was:    %2.3f\n", draw_polygons_time/evaluate_sum*100);
+    printf("Draw Polygon alt Time %% was:    %2.3f\n", draw_polygons_time2/evaluate_sum*100);
     printf("Image Compare Time %% was:   %2.3f\n", image_compare_time/evaluate_sum*100);
     printf("Image Delete Time %% was: %2.3f\n", image_delete_time/evaluate_sum*100);
 
-    print_timings(draw_polygons_time);
 }
 
 int main(){

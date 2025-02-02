@@ -82,6 +82,22 @@ void ppm_image_set_pixel_unsafe(PPMImage* image, int x, int y, unsigned char R, 
     ppm_pixel_set_unsafe(&image->data[y * image->x + x], R, G, B);
 }
 
+void ppm_image_set_pixel_overlay(PPMImage* image, int x, int y, unsigned char R, unsigned char G, unsigned char B, unsigned char A){
+    float alpha_percent = (float)A / (float)PIXEL_COLOR_VALUE;
+    float alpha_percent_existing = 1.0f - alpha_percent;
+
+    PPMPixel* selected_pixel = &image->data[y * image->x +x];
+    unsigned char new_R, new_G, new_B;
+    new_R = (int)((float)selected_pixel->R * alpha_percent_existing + (float)R * alpha_percent);
+    new_G = (int)((float)selected_pixel->G * alpha_percent_existing + (float)G * alpha_percent);
+    new_B = (int)((float)selected_pixel->B * alpha_percent_existing + (float)B * alpha_percent);
+
+    selected_pixel->R = new_R;
+    selected_pixel->G = new_G;
+    selected_pixel->B = new_B;
+
+}
+
 
 PPMImage* ppm_image_set_background(PPMImage* image, unsigned char R, unsigned char G, unsigned char B){
     if (!image){

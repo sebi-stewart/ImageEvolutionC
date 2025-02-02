@@ -31,7 +31,7 @@ typedef struct EdgeRow {
 } EdgeRow;
 
 typedef struct {
-    int max_y, min_y;
+    int max_y, min_y, max_x, min_x;
     EdgeRow* rows;
 } EdgeTable;
 
@@ -128,7 +128,9 @@ void traverse_global_edge_table(EdgeTable* edge_table);
 EdgeTable* generate_global_edge_table(Polygon* p_polygon);
 Edge* sorted_insert(Edge* head, Edge* new_edge);
 void ppm_image_processor_draw_polygon(PPMImage* canvas, Polygon* p_polygon);
+void ppm_image_processor_draw_polygon_alt(PPMImage* canvas, Polygon* p_polygon);
 PPMImage* ppm_image_processor_draw_polygons(PPMImageProcessor* proc);
+PPMImage* ppm_image_processor_draw_polygons_alt(PPMImageProcessor* proc);
 void print_timings(double total);
 PPMImageProcessor* ppm_image_processor_copy(PPMImageProcessor* org_proc);
 
