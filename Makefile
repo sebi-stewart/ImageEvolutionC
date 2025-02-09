@@ -1,5 +1,7 @@
 CC = gcc
 CFLAGS = -O3 -Wall
+CC_ALT = clang
+PARALLEL_FLAGS = -Xclang -fopenmp -L/opt/homebrew/opt/libomp/lib -I/opt/homebrew/opt/libomp/include -lomp
 
 # Pixel Sources/Headers
 PPM_PIXEL_SOURCES = PPMPixel.c
@@ -22,7 +24,7 @@ all: run-PPMEvolution
 
 # PPMEvolution.o
 PPMEvolution.o: $(PPM_EVOLUTION_SOURCES) $(PPM_EVOLUTION_HEADERS)
-	$(CC) $(CFLAGS) $(PPM_EVOLUTION_SOURCES) -o PPMEvolution.o
+	$(CC_ALT) $(CFLAGS) $(PARALLEL_FLAGS) $(PPM_EVOLUTION_SOURCES) -o PPMEvolution.o
 
 # PPMImageProcessor.o
 PPMImageProcessor.o: $(PPM_IMAGE_PROCESSOR_SOURCES) $(PPM_IMAGE_PROCESSOR_HEADERS) PPMImageProcessorMain.c

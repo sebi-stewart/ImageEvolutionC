@@ -12,16 +12,12 @@ double survive_time = 0;
 double breed_time = 0;
 double mutate_time = 0;
 
-double draw_polygons_time = 0;
-double draw_polygons_time2 = 0;
-double image_compare_time = 0;
-double image_delete_time = 0;
-
 void ppm_evolution_population_evaluate(PPMImage* org, Population* comparison){
+    #pragma omp parallel for
     for (int i = 0; i < comparison->count; ++i) {
-#ifdef DEBUG_VERBOSE
+        #ifdef DEBUG_VERBOSE
         printf("%d: ", i);
-#endif
+        #endif
         Individual* current_individual = &comparison->pop[i];
         if (current_individual == NULL){
             #ifdef DEBUG
@@ -30,9 +26,9 @@ void ppm_evolution_population_evaluate(PPMImage* org, Population* comparison){
             continue;
         }
         if (current_individual->eval != -1){
-#ifdef DEBUG_VERBOSE
+            #ifdef DEBUG_VERBOSE
             printf("\tppm_evolution_population_evaluate: No changes, not evaluating\n");
-#endif
+            #endif
             continue;
         }
         PPMImageProcessor* current_processor = current_individual->processor;
@@ -43,36 +39,17 @@ void ppm_evolution_population_evaluate(PPMImage* org, Population* comparison){
             continue;
         }
 
-        clock_t begin, end;
-        begin = clock();
-        PPMImage* cur_image = ppm_image_processor_draw_polygons(current_processor);
-        end = clock();
-        draw_polygons_time += (double)(end - begin);
-
-        begin = clock();
-        PPMImage* cur_image2 = ppm_image_processor_draw_polygons_alt(current_processor);
-        end = clock();
-        draw_polygons_time2 += (double)(end - begin);
-        ppm_image_del(cur_image2);
-
-        begin = clock();
+        PPMImage* cur_image = ppm_image_processor_draw_polygons_alt(current_processor);
         current_individual->eval = ppm_image_compare_unsafe(org, cur_image);
-        end = clock();
-        image_compare_time += (double)(end - begin);
 
-        if (current_individual->eval == -1){
-#ifdef DEBUG
-            printf("ppm_evolution_population_evaluate: Evaluation was -1\n");
-#endif
-            exit(1);
+        #pragma omp critical
+        {
+            if (current_individual->eval < comparison->best->eval) {
+                comparison->best = current_individual;
+            }
         }
-        if (current_individual->eval < comparison->best->eval){
-            comparison->best = current_individual;
-        }
-        begin = clock();
+
         ppm_image_del(cur_image);
-        end = clock();
-        image_delete_time += (double)(end - begin);
     }
 }
 
@@ -515,18 +492,6 @@ void run(char* image_filepath, int population_size, int generation_count, int ra
     printf("Breed Time %% was:    %2.3f\n", breed_time/time_sum*100);
     printf("Mutate Time %% was:   %2.3f\n", mutate_time/time_sum*100);
     printf("Evaluate Time %% was: %2.3f\n", evaluate_time/time_sum*100);
-
-    double evaluate_sum = draw_polygons_time + image_compare_time + image_delete_time;
-    printf("Draw Polygon Time was:    %10.2f\n", draw_polygons_time);
-    printf("Draw Polygon alt Time was:    %10.2f\n", draw_polygons_time2);
-    printf("Image Compare Time was:   %10.2f\n", image_compare_time);
-    printf("Image Delete Time was: %10.2f\n\n", image_delete_time);
-
-    printf("Draw Polygon Time %% was:    %2.3f\n", draw_polygons_time/evaluate_sum*100);
-    printf("Draw Polygon alt Time %% was:    %2.3f\n", draw_polygons_time2/evaluate_sum*100);
-    printf("Image Compare Time %% was:   %2.3f\n", image_compare_time/evaluate_sum*100);
-    printf("Image Delete Time %% was: %2.3f\n", image_delete_time/evaluate_sum*100);
-
 }
 
 int main(){

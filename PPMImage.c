@@ -321,8 +321,11 @@ int ppm_image_compare_unsafe(const PPMImage* img1, const PPMImage* img2){
     int total, lim;
     lim = img1->x * img1->y;
     total = 0;
+
     for(int i = 0; i < lim; i++){
-        total += ppm_pixel_compare_unsafe(&img1->data[i], &img2->data[i]);
+        const PPMPixel* p1 = &img1->data[i];
+        const PPMPixel* p2 = &img2->data[i];
+        total += abs(p1->R - p2->R) + abs(p1->G - p2->G) + abs(p1->B - p2->B);
     }
     return total;
 }
