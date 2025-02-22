@@ -73,22 +73,23 @@ int rand_int(int max){
     return rand_val % max;
 }
 
-Polygon* ppm_evolution_random_polygon(Polygon* polygons){
-    if (polygons == NULL) {
-        fprintf(stderr, "ppm_evolution_random_polygon: no polygon to mutate\n");
+Polygon* ppm_evolution_random_polygon(PPMImageProcessor* processor){
+    if (processor == NULL){
+        fprintf(stderr, "ppm_evolution_random_polygon: no processor to mutate\n");
+        exit(1);
+    }
+    if (processor->polygons == NULL) {
+        fprintf(stderr, "ppm_evolution_random_polygon: no polygon to choose from\n");
         exit(1); // No polygons in the list
     }
 
-    int polygon_count = 0;
-    for (Polygon* cur = polygons; cur != NULL; cur=cur->next){
-        polygon_count++;
-    }
+    unsigned int polygon_count = processor->polygon_count - 1;
 
     // Generate a random index between 0 and polygon_count - 1
     int random_index = (int)(rand_float() * (float)polygon_count);
 
     // Traverse the list to the random index
-    Polygon* selected_polygon = polygons;
+    Polygon* selected_polygon = processor->polygons;
     for (int i = 0; i < random_index; i++) {
         selected_polygon = selected_polygon->next;
     }
@@ -113,7 +114,7 @@ void ppm_evolution_mutate_polygon_points(PPMImageProcessor* processor){
         return; // No polygons in the list
     }
 
-    Polygon* random_polygon = ppm_evolution_random_polygon(processor->polygons);
+    Polygon* random_polygon = ppm_evolution_random_polygon(processor);
     double coord;
     for (Corner* cur = random_polygon->corners; cur != NULL; cur = cur->next){
         if (rand_float() > 0.5){
@@ -142,7 +143,7 @@ void ppm_evolution_mutate_polygon_colors(PPMImageProcessor* processor){
         return; // No polygons in the list
     }
 
-    Polygon* random_polygon = ppm_evolution_random_polygon(processor->polygons);
+    Polygon* random_polygon = ppm_evolution_random_polygon(processor);
     PPMPixel* polygon_color = random_polygon->color;
     double color;
     float random_float = rand_float();
@@ -190,7 +191,7 @@ void ppm_evolution_mutate_remove_polygon(PPMImageProcessor* processor){
 #endif
         return;
     }
-    Polygon* random_polygon = ppm_evolution_random_polygon(processor->polygons);
+    Polygon* random_polygon = ppm_evolution_random_polygon(processor);
     if (random_polygon == NULL){
 #ifdef DEBUG
         fprintf(stderr, "ppm_evolution_mutate_remove_polygon: NULL was returned for random_polygon\n");
