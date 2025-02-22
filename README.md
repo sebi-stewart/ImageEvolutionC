@@ -27,4 +27,4 @@ Where the number after the `=` determines how many threads are created during th
 Here I do recommend to use powers of 2 to determine how many threads to use.
 
 ## Testing Evidence
-With this program I did several sets of testing, including manual run big bang test of the program and unit testing as well for many of the basic functions, where the basic functionality was asserted and made sure to work. 
+With this program I did several sets of testing, including manual run big bang test of the program and unit testing (yet to come) as well for many of the basic functions, where the basic functionality was asserted and made sure to work. 
