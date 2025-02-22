@@ -111,40 +111,29 @@ void push_one_polygon(PPMImageProcessor* proc, Polygon* p_polygon) {
 
     p_polygon->next = proc->polygons;
     proc->polygons = p_polygon;
+    proc->polygon_count++;
 }
 
-void push_polygon(PPMImageProcessor* proc, Polygon* p_polygon) {
-    if (proc == NULL) {
-        fprintf(stderr, "push_polygon: Image Processor was NULL\n");
-        exit(1);
-    }
-    if (p_polygon == NULL) {
-        fprintf(stderr, "push_polygon: Polygon was NULL\n");
-        exit(1);
-    }
+void pop_polygon(PPMImageProcessor* proc, Polygon* target) {
 
-    p_polygon->next = proc->polygons;
-    proc->polygons = p_polygon;
-}
-
-void pop_polygon(Polygon** head, Polygon* target) {
-    if (head == NULL || *head == NULL || target == NULL) {
+    if (proc == NULL || proc->polygons == NULL || target == NULL) {
         fprintf(stderr, "pop_polygon: No polygons to pop \n");
         return;
     }
 
-    if (*head == target){
-        Polygon* next = (*head)->next;
-        if ((*head)->corners != NULL){
+    if (proc->polygons == target){
+        Polygon* next = proc->polygons->next;
+        if (proc->polygons->corners != NULL){
             fprintf(stderr, "pop_polygon: Polygon had corners, freeing would cause a memory leak\n");
             return;
         }
-        free(*head);
-        *head = next;
+        free(proc->polygons);
+        proc->polygons = next;
+        proc->polygon_count--;
         return;
     }
 
-    Polygon* prev = *head;
+    Polygon* prev = proc->polygons;
     while(prev->next != target){
         prev = prev->next;
 
@@ -160,6 +149,7 @@ void pop_polygon(Polygon** head, Polygon* target) {
         return;
     }
     free(target);
+    proc->polygon_count--;
 }
 
 void pop_all_polygons(PPMImageProcessor* proc) {
@@ -180,10 +170,11 @@ void pop_all_polygons(PPMImageProcessor* proc) {
         }
         free(temp);
     } while (proc->polygons != NULL);
+    proc->polygon_count = 0;
 }
 
 void print_polygon(Polygon* polygon){
-    printf("Polygon: ");
+    printf("Polygon (%d, %d, %d): ", polygon->color->R, polygon->color->G, polygon->color->B);
     Corner* current_corner = polygon->corners;
     while(current_corner->next != NULL){
         print_corner(current_corner);
@@ -194,6 +185,17 @@ void print_polygon(Polygon* polygon){
     printf("\n");
 }
 
+void print_image_processor(PPMImageProcessor* processor){
+    printf("Processor: \n");
+    Polygon* cur_polygon = processor->polygons;
+    int count = 1;
+    while (cur_polygon != NULL){
+        printf("%d:  \t", count++);
+        print_polygon(cur_polygon);
+        cur_polygon = cur_polygon->next;
+    }
+}
+
 PPMImageProcessor* ppm_image_processor_init(const unsigned char R, const unsigned char G, const unsigned char B,
                                             const unsigned int width, const unsigned int height) {
     PPMPixel* bg = ppm_pixel_new(R, G, B);
@@ -201,6 +203,7 @@ PPMImageProcessor* ppm_image_processor_init(const unsigned char R, const unsigne
     proc->background = bg;
     proc->width = width;
     proc->height = height;
+    proc->polygon_count = 0;
 
     return proc;
 }
@@ -239,7 +242,8 @@ void traverse_global_edge_table(EdgeTable* edge_table) {
         printf("Edge table is NULL\n");
         return;
     }
-    printf("Iterating to %d\n", edge_table->max_y);
+    printf("Iterating Y from %d to %d\n", edge_table->min_y, edge_table->max_y);
+    printf("Iterating X from %d to %d\n", edge_table->min_x, edge_table->max_x);
     // Iterate through each row (ymin value) in the edge table
     for (int ymin = 0; ymin <= edge_table->max_y; ymin++) {
         EdgeRow* row = &edge_table->rows[ymin]; // Get the EdgeRow for this ymin
@@ -286,7 +290,7 @@ EdgeTable* generate_global_edge_table(Polygon* p_polygon){
     global_edge_table->max_y = head->y;
     global_edge_table->min_y = head->y;
     global_edge_table->max_x = head->x;
-    global_edge_table->min_y = head->x;
+    global_edge_table->min_x = head->x;
 
     float x_at_ymin;
     float dx_dy;
@@ -303,7 +307,7 @@ EdgeTable* generate_global_edge_table(Polygon* p_polygon){
         y_min = (current->y < next->y) ? current->y : next->y;
         y_max = (current->y > next->y) ? current->y : next->y;
 
-        x_min = (current->x > next->x) ? current->x : next->x;
+        x_min = (current->x < next->x) ? current->x : next->x;
         x_max = (current->x > next->x) ? current->x : next->x;
 
         // Calculate x at ymin
@@ -394,8 +398,11 @@ void ppm_image_set_pixel_in_processor(PPMImage* image, int x, int y, unsigned ch
     ppm_pixel_set_unsafe(&image->data[y * image->x + x], R, G, B);
 }
 
-void ppm_image_processor_draw_polygon_alt(PPMImage* canvas, Polygon* p_polygon){
+void ppm_image_processor_draw_polygon_alt(PPMImage* canvas, Polygon* p_polygon, int final){
     EdgeTable* global_edge_table = generate_global_edge_table(p_polygon);
+//    if (final){
+//        traverse_global_edge_table(global_edge_table);
+//    }
     if (global_edge_table->max_x > canvas->x){
         fprintf(stderr, "ppm_image_processor_draw_polygon_alt: GET->max_x (%d) was too large for canvas (%d)\n",
                 global_edge_table->max_x, canvas->x);
@@ -446,9 +453,14 @@ void ppm_image_processor_draw_polygon_alt(PPMImage* canvas, Polygon* p_polygon){
         // Loop over all pixels horizontally
         int inside_polygon = false;
         cur_edge = active_edges;
-//        printf("MinX: %d\n", global_edge_table->min_x);
+//        if(final) {
+//        printf("YMin: %d ", ymin);
+//        }
         for(int x = global_edge_table->min_x; x < global_edge_table->max_x && cur_edge!=NULL; x++){
-            if (x ==  cur_edge->comp_x_val){ // if the x of our current edge and our iteration match we are on a line
+//            if(final){
+//                printf("%d", x == cur_edge->comp_x_val);
+//            }
+            if (x == cur_edge->comp_x_val){ // if the x of our current edge and our iteration match we are on a line
                 inside_polygon = !inside_polygon; // We either entered or left a polygon
                 if (cur_edge->dx_dy > 0) { // We add this conditional so that regressing lines or straight lines don't get printed outside of their boundaries
                     ppm_image_set_pixel(canvas, x, ymin, R, G, B);
@@ -466,9 +478,15 @@ void ppm_image_processor_draw_polygon_alt(PPMImage* canvas, Polygon* p_polygon){
 
             if (inside_polygon){ // If we are inside a polygon, draw that pixel
                 ppm_image_set_pixel(canvas, x, ymin, R, G, B);
+//                if(final){
+//                    printf("\t\tEdge [%d | %d] on canvas [%d | %d] \n", x, ymin, canvas->x, canvas->y);
+//                }
             }
         }
 
+//        if(final) {
+//            printf("YMin: %d\n", ymin);
+//        }
         // Update active edge table (increment / decrement x)
         for(cur_edge = active_edges; cur_edge != NULL; cur_edge = cur_edge->next){
             cur_edge->x += cur_edge->dx_dy;
@@ -640,7 +658,7 @@ PPMImage* ppm_image_processor_draw_polygons(PPMImageProcessor* proc) {
     return canvas;
 }
 
-PPMImage* ppm_image_processor_draw_polygons_alt(PPMImageProcessor* proc) {
+PPMImage* ppm_image_processor_draw_polygons_alt(PPMImageProcessor* proc, int final) {
     if (proc == NULL) {
         fprintf(stderr, "ppm_processor_draw_polygons: Image Processor was NULL\n");
         exit(1);
@@ -655,10 +673,18 @@ PPMImage* ppm_image_processor_draw_polygons_alt(PPMImageProcessor* proc) {
         return canvas;
     }
 
-    Polygon* poly_head = proc->polygons;
-    while (poly_head != NULL) {
-        ppm_image_processor_draw_polygon_alt(canvas, poly_head);
-        poly_head = poly_head->next;
+    Polygon* cur_polygon = proc->polygons;
+    int i = 1;
+    while (cur_polygon != NULL) {
+        if (final){
+            printf("Drawing %d: ", i++);
+            print_polygon(cur_polygon);
+        }
+        ppm_image_processor_draw_polygon_alt(canvas, cur_polygon, final);
+        cur_polygon = cur_polygon->next;
+    }
+    if (final){
+        printf("\n Total Polygons %d\n", proc->polygon_count);
     }
     return canvas;
 }
@@ -714,6 +740,7 @@ PPMImageProcessor* ppm_image_processor_copy(PPMImageProcessor* org_proc){
     unsigned int height = org_proc->height;
 
     PPMImageProcessor* new_proc = ppm_image_processor_init(R,G,B,width, height);
+    new_proc->polygon_count = org_proc->polygon_count;
 
     new_proc->polygons = ppm_image_processor_copy_polygons(org_proc->polygons);
     if (new_proc->polygons == NULL && org_proc->polygons != NULL) {

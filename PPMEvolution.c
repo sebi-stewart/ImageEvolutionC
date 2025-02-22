@@ -5,12 +5,6 @@
 #include "PPMEvolution.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
-
-double evaluate_time = 0;
-double survive_time = 0;
-double breed_time = 0;
-double mutate_time = 0;
 
 void ppm_evolution_population_evaluate(PPMImage* org, Population* comparison){
     #pragma omp parallel for
@@ -39,18 +33,26 @@ void ppm_evolution_population_evaluate(PPMImage* org, Population* comparison){
             continue;
         }
 
-        PPMImage* cur_image = ppm_image_processor_draw_polygons_alt(current_processor);
+        PPMImage* cur_image = ppm_image_processor_draw_polygons_alt(current_processor, false);
         current_individual->eval = ppm_image_compare_unsafe(org, cur_image);
-
-        #pragma omp critical
-        {
-            if (current_individual->eval < comparison->best->eval) {
-                comparison->best = current_individual;
-            }
-        }
-
         ppm_image_del(cur_image);
     }
+
+    // Find the best individual (serial step)
+    Individual* best_individual = comparison->pop;
+    for (int i = 1; i < comparison->count; ++i) {
+        Individual* current_individual = &comparison->pop[i];
+        if (current_individual == NULL){
+            #ifdef DEBUG
+            printf("ppm_evolution_population_evaluate: Current individual was null\n");
+            #endif
+            continue;
+        }
+        if (current_individual->eval < best_individual->eval) {
+            best_individual = current_individual;
+        }
+    }
+    comparison->best = best_individual;
 }
 
 float rand_float(){
@@ -114,11 +116,10 @@ void ppm_evolution_mutate_polygon_points(PPMImageProcessor* processor){
     Polygon* random_polygon = ppm_evolution_random_polygon(processor->polygons);
     double coord;
     for (Corner* cur = random_polygon->corners; cur != NULL; cur = cur->next){
-        if (rand_float() > 0.1){
+        if (rand_float() > 0.5){
             coord = (double)cur->x - (rand_float() * 5 - 2.5);
             cur->x = narrow_coords((int)coord, (int)processor->width);
-        }
-        if (rand_float() > 0.1){
+        } else {
             coord = (double)cur->y - (rand_float() * 5 - 2.5);
             cur->y = narrow_coords((int)coord, (int)processor->height);
         }
@@ -144,15 +145,15 @@ void ppm_evolution_mutate_polygon_colors(PPMImageProcessor* processor){
     Polygon* random_polygon = ppm_evolution_random_polygon(processor->polygons);
     PPMPixel* polygon_color = random_polygon->color;
     double color;
-    if (rand_float() > 0.1){
+    float random_float = rand_float();
+    if (random_float < (1.0/3.0)){
         color = (double)polygon_color->R - (rand_float() * 10 - 5);
         polygon_color->R = narrow_colors(color);
     }
-    if (rand_float() > 0.1){
+    else if (random_float > (2.0/3.0)){
         color = (double)polygon_color->G - (rand_float() * 10 - 5);
         polygon_color->G = narrow_colors(color);
-    }
-    if (rand_float() > 0.1){
+    } else {
         color = (double)polygon_color->B - (rand_float() * 10 - 5);
         polygon_color->B = narrow_colors(color);
     }
@@ -197,10 +198,29 @@ void ppm_evolution_mutate_remove_polygon(PPMImageProcessor* processor){
         return;
     }
     pop_all_corners(random_polygon);
-    pop_polygon(&(processor->polygons), random_polygon);
+    pop_polygon(processor, random_polygon);
 }
 
-void ppm_evolution_population_mutate(Population* population, bool elitist){
+void ppm_evolution_mutate_background_colour(PPMImageProcessor* processor){
+    PPMPixel* background = processor->background;
+    double color;
+    float random_float = rand_float();
+    if (random_float < (1.0/3.0)){
+        color = (double)background->R - (rand_float() * 10 - 5);
+        background->R = narrow_colors(color);
+    }
+    else if (random_float > (2.0/3.0)){
+        color = (double)background->G - (rand_float() * 10 - 5);
+        background->G = narrow_colors(color);
+    } else {
+        color = (double)background->B - (rand_float() * 10 - 5);
+        background->B = narrow_colors(color);
+    }
+
+}
+
+void ppm_evolution_population_mutate(Population* population, bool elitist, int generation){
+    float multiplier = 2.0f/(float)generation + 0.5f;
     for (int i = 0; i < population->count; i++){
         Individual* current_individual = &population->pop[i];
         if (elitist && current_individual == population->best){
@@ -220,22 +240,25 @@ void ppm_evolution_population_mutate(Population* population, bool elitist){
             continue;
         }
 
+        if (rand_float() * multiplier > 0.8){
+            ppm_evolution_mutate_background_colour(current_processor);
+        }
 
         if (current_processor->polygons != NULL) {
-            if (rand_float() < 0.5) {
+            if (rand_float()*multiplier < 0.3) {
                 ppm_evolution_mutate_polygon_points(current_processor);
                 current_individual->eval = -1;
             }
-            if (rand_float() < 0.5) {
+            if (rand_float()*multiplier < 0.3) {
                 ppm_evolution_mutate_polygon_colors(current_processor);
                 current_individual->eval = -1;
             }
-            if (rand_float() < 0.005) {
+            if (rand_float()*multiplier < 0.005) {
                 ppm_evolution_mutate_remove_polygon(current_processor);
                 current_individual->eval = -1;
             }
         }
-        if (rand_float() < 0.02){
+        if (rand_float()*multiplier < 0.025){
             ppm_evolution_mutate_add_polygon(current_processor);
             current_individual->eval = -1;
         }
@@ -382,31 +405,16 @@ void ppm_evolution_population_survive_simple_kill_off(Population* population, in
 
 void ppm_evolution_runner(PPMImage* base_image,
                           Population* base_population,
-                          RunnerParams* params
+                          RunnerParams* params,
+                          int generation
                           ){
-
-    clock_t begin;
-    clock_t end;
-
-    begin = clock();
     params->survive_func(base_population, params->survival_rate);
-    end = clock();
-    survive_time += (double)(end - begin);
 
-    begin = clock();
     params->breed_func(base_population);
-    end = clock();
-    breed_time += (double)(end - begin);
 
-    begin = clock();
-    params->mutation_func(base_population, params->elitist);
-    end = clock();
-    mutate_time += (double)(end - begin);
+    params->mutation_func(base_population, params->elitist, generation);
 
-    begin = clock();
     params->evaluation_func(base_image, base_population);
-    end = clock();
-    evaluate_time += (double)(end - begin);
 }
 
 Population* ppm_evolution_population_create(int population_size, int width, int height){
@@ -460,42 +468,34 @@ void run(char* image_filepath, int population_size, int generation_count, int ra
             .survive_func = ppm_evolution_population_survive_simple_kill_off,
             .survival_rate = 50,
             .mutation_func = ppm_evolution_population_mutate,
-            .elitist = false,
+            .elitist = true,
             .breed_func = ppm_evolution_population_breed_copy_best
     };
 
     // Call the runner
     int const MAX_EVAL = base_image->x * base_image->y * 3 * PIXEL_COLOR_VALUE;
     printf("Generation %5c | Best\n", ' ');
-    for (int i = 0; i < generation_count; ++i) {
-        ppm_evolution_runner(base_image, population, &functions);
-        printf("Generation %5d | %3.4f\n", i+1, (double)(MAX_EVAL-population->best->eval)/(double)MAX_EVAL * 100);
+    for (int i = 1; i < generation_count; i++) {
+        ppm_evolution_runner(base_image, population, &functions, generation_count);
+        if (i % 100 == 0){
+            printf("Generation %5d | %3.4f\n", i, (double)(MAX_EVAL-population->best->eval)/(double)MAX_EVAL * 100);
+        }
     }
 
-    PPMImage* best_image = ppm_image_processor_draw_polygons(population->best->processor);
+    printf("Best image fitness of: %3.4f\n", (double)(MAX_EVAL-population->best->eval)/(double)MAX_EVAL * 100);
+    PPMPixel* background = population->best->processor->background;
+    printf("Background colour %d, %d, %d\n", background->R, background->G, background->B);
+    PPMImage* best_image = ppm_image_processor_draw_polygons_alt(population->best->processor, true);
+    print_image_processor(population->best->processor);
     ppm_image_save(best_image, "best.ppm");
     ppm_image_del(best_image);
-    printf("Best image fitness of: %3.4f\n", (double)(MAX_EVAL-population->best->eval)/(double)MAX_EVAL * 100);
-
     
     ppm_image_del(base_image);
     ppm_evolution_population_del(population);
-
-    printf("Survive Time was:  %10.2f\n", survive_time);
-    printf("Breed Time was:    %10.2f\n", breed_time);
-    printf("Mutate Time was:   %10.2f\n", mutate_time);
-    printf("Evaluate Time was: %10.2f\n\n", evaluate_time);
-
-    double time_sum = survive_time + breed_time + mutate_time + evaluate_time;
-
-    printf("Survive Time %% was:  %2.3f\n", survive_time/time_sum*100);
-    printf("Breed Time %% was:    %2.3f\n", breed_time/time_sum*100);
-    printf("Mutate Time %% was:   %2.3f\n", mutate_time/time_sum*100);
-    printf("Evaluate Time %% was: %2.3f\n", evaluate_time/time_sum*100);
 }
 
 int main(){
-    run("images/7a.ppm", 100, 100, 1);
+    run("images/7a.ppm", 160, 100, 1);
 
 //    PPMImage* best_image = ppm_image_load("images/7a.ppm");
 //    ppm_image_save(best_image, "best.ppm");

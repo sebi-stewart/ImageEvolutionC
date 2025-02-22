@@ -24,7 +24,7 @@ typedef struct RunnerParams {
     void (*evaluation_func)(PPMImage*, Population*);
     void (*survive_func)(Population*, int);
     int survival_rate;
-    void (*mutation_func)(Population*, bool);
+    void (*mutation_func)(Population*, bool, int);
     bool elitist;
     void (*breed_func)(Population*);
 } RunnerParams;

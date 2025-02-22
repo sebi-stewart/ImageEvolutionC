@@ -17,7 +17,7 @@ typedef struct Polygon{
 typedef struct {
     PPMPixel* background;
     Polygon* polygons;
-    unsigned int width, height;
+    unsigned int width, height, polygon_count;
 } PPMImageProcessor;
 
 typedef struct Edge{
@@ -100,7 +100,6 @@ Polygon* polygon_init(unsigned char R, unsigned char G, unsigned char B);
  * (more than one polygon is to be added)
  * */
 void push_one_polygon(PPMImageProcessor* proc, Polygon* p_polygon);
-void push_polygon(PPMImageProcessor* proc, Polygon* p_polygon);
 
 /*
  * This function will remove a polygon from the start of the processor
@@ -114,9 +113,10 @@ void push_polygon(PPMImageProcessor* proc, Polygon* p_polygon);
  * Errors:
  * head is NULL
  * */
-void pop_polygon(Polygon** head, Polygon* target);
+void pop_polygon(PPMImageProcessor* proc, Polygon* target);
 void pop_all_polygons(PPMImageProcessor* proc);
 void print_polygon(Polygon* polygon);
+void print_image_processor(PPMImageProcessor* processor);
 
 
 PPMImageProcessor* ppm_image_processor_init(unsigned char R, unsigned char G, unsigned char B,
@@ -128,9 +128,9 @@ void traverse_global_edge_table(EdgeTable* edge_table);
 EdgeTable* generate_global_edge_table(Polygon* p_polygon);
 Edge* sorted_insert(Edge* head, Edge* new_edge);
 void ppm_image_processor_draw_polygon(PPMImage* canvas, Polygon* p_polygon);
-void ppm_image_processor_draw_polygon_alt(PPMImage* canvas, Polygon* p_polygon);
+void ppm_image_processor_draw_polygon_alt(PPMImage* canvas, Polygon* p_polygon, int final);
 PPMImage* ppm_image_processor_draw_polygons(PPMImageProcessor* proc);
-PPMImage* ppm_image_processor_draw_polygons_alt(PPMImageProcessor* proc);
+PPMImage* ppm_image_processor_draw_polygons_alt(PPMImageProcessor* proc, int final);
 void print_timings(double total);
 PPMImageProcessor* ppm_image_processor_copy(PPMImageProcessor* org_proc);
 

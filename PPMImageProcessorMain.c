@@ -6,53 +6,38 @@
 
 int main(void){
     Polygon* poly;
-    PPMImageProcessor* new_proc = ppm_image_processor_init(0, 0, 0, 8, 8);
+    PPMImageProcessor* new_proc = ppm_image_processor_init(152, 109, 97, 200, 200);
 
-    poly = polygon_init(0, 0, 255);
-
-
-    push_corner(poly, corner_init(8, 0));
-    push_corner(poly, corner_init(0, 4));
-    push_corner(poly, corner_init(8, 8));
-
-    print_polygon(poly);
+    poly = polygon_init(104, 112, 163);
+    push_corner(poly, corner_init(149, 84));
+    push_corner(poly, corner_init(29, 12));
+    push_corner(poly, corner_init(173, 124));
     push_one_polygon(new_proc, poly);
 
-    poly = polygon_init(255, 0, 0);
-
-
-    push_corner(poly, corner_init(0, 0));
-    push_corner(poly, corner_init(0, 4));
-    push_corner(poly, corner_init(8, 0));
-
-    print_polygon(poly);
-    push_one_polygon(new_proc, poly);
-    
-    poly = polygon_init(0, 255, 0);
-
-    push_corner(poly, corner_init(0, 4));
-    push_corner(poly, corner_init(0, 8));
-    push_corner(poly, corner_init(8, 8));
-
-    print_polygon(poly);
+    poly = polygon_init(24, 88, 16);
+    push_corner(poly, corner_init(5, 67));
+    push_corner(poly, corner_init(40, 101));
+    push_corner(poly, corner_init(146, 0));
     push_one_polygon(new_proc, poly);
 
-    PPMImage* org_image = ppm_image_processor_draw_polygons(new_proc);
-    ppm_image_set_pixel_overlay(org_image, 1, 7, 255, 255, 255, 150);
-    ppm_image_set_pixel_overlay(org_image, 3, 7, 255, 255, 255, 150);
-    ppm_image_set_pixel_overlay(org_image, 5, 7, 255, 255, 255, 150);
-    ppm_image_set_pixel_overlay(org_image, 7, 7, 255, 255, 255, 150);
-    ppm_image_save(org_image, "test.ppm");
+    poly = polygon_init(147, 153, 130);
+    push_corner(poly, corner_init(71, 102));
+    push_corner(poly, corner_init(71, 5));
+    push_corner(poly, corner_init(145, 111));
+    push_one_polygon(new_proc, poly);
 
-    PPMImage* alt_image = ppm_image_processor_draw_polygons_alt(new_proc);
-    ppm_image_set_pixel_overlay(alt_image, 1, 7, 255, 255, 255, 150);
-    ppm_image_set_pixel_overlay(alt_image, 3, 7, 255, 255, 255, 150);
-    ppm_image_set_pixel_overlay(alt_image, 5, 7, 255, 255, 255, 150);
-    ppm_image_set_pixel_overlay(alt_image, 7, 7, 255, 255, 255, 150);
+    poly = polygon_init(152, 1, 135);
+    push_corner(poly, corner_init(88, 72));
+    push_corner(poly, corner_init(143, 146));
+    push_corner(poly, corner_init(22, 161));
+    push_one_polygon(new_proc, poly);
+
+    PPMImage* alt_image = ppm_image_processor_draw_polygons_alt(new_proc, true);
+    print_image_processor(new_proc);
+
     ppm_image_save(alt_image, "test2.ppm");
 
     ppm_image_processor_free(new_proc);
-    ppm_image_del(org_image);
     ppm_image_del(alt_image);
 
     return 0;
