@@ -34,19 +34,6 @@ PPMImage* ppm_image_init(const unsigned int width, const unsigned int height, co
 
 }
 
-PPMImage* ppm_image_new(const int width, const int height, const unsigned int R, const unsigned int G, const unsigned int B){
-    if (
-            R > PIXEL_COLOR_VALUE ||
-            G > PIXEL_COLOR_VALUE ||
-            B > PIXEL_COLOR_VALUE){
-        fprintf(stderr, "ppm_image_new: RGB values were out of bounds\n");
-        exit(1);
-    }
-    
-    PPMImage* img = ppm_image_init(width, height, R, G, B);
-    return img;
-}
-
 PPMImage* ppm_image_new_blank(const int width, const int height){
     return ppm_image_init(width, height, 0, 0, 0);
 }
@@ -78,83 +65,6 @@ PPMImage* ppm_image_set_pixel(PPMImage* image, int x, int y, unsigned char R, un
     return image;
 }
 
-void ppm_image_set_pixel_unsafe(PPMImage* image, int x, int y, unsigned char R, unsigned char G, unsigned char B){
-    ppm_pixel_set_unsafe(&image->data[y * image->x + x], R, G, B);
-}
-
-void ppm_image_set_pixel_overlay(PPMImage* image, int x, int y, unsigned char R, unsigned char G, unsigned char B, unsigned char A){
-    float alpha_percent = (float)A / (float)PIXEL_COLOR_VALUE;
-    float alpha_percent_existing = 1.0f - alpha_percent;
-
-    PPMPixel* selected_pixel = &image->data[y * image->x +x];
-    unsigned char new_R, new_G, new_B;
-    new_R = (int)((float)selected_pixel->R * alpha_percent_existing + (float)R * alpha_percent);
-    new_G = (int)((float)selected_pixel->G * alpha_percent_existing + (float)G * alpha_percent);
-    new_B = (int)((float)selected_pixel->B * alpha_percent_existing + (float)B * alpha_percent);
-
-    selected_pixel->R = new_R;
-    selected_pixel->G = new_G;
-    selected_pixel->B = new_B;
-
-}
-
-
-PPMImage* ppm_image_set_background(PPMImage* image, unsigned char R, unsigned char G, unsigned char B){
-    if (!image){
-        fprintf(stderr, "ppm_image_set_pixel: Image was NULL\n");
-        exit(1);
-    }
-    if (!image->data){
-        fprintf(stderr, "ppm_image_set_pixel: Image data was NULL\n");
-        exit(1);
-    }
-
-    if (
-            R < 0 || R > PIXEL_COLOR_VALUE ||
-            G < 0 || G > PIXEL_COLOR_VALUE ||
-            B < 0 || B > PIXEL_COLOR_VALUE){
-        fprintf(stderr, "ppm_image_set_pixel: RGB values were out of bounds\n");
-        exit(1);
-    }
-    unsigned int i, lim;
-    lim = image->x * image->y;
-    for (i=0; i < lim; i++){
-        ppm_pixel_set(&image->data[i], R, G, B);
-    }
-    return image;
-}
-
-PPMImage* ppm_image_copy(PPMImage* img1, PPMImage* img2){
-    if (img1 == NULL && img2 == NULL){
-        fprintf(stderr, "ppm_image_copy: Both images were NULL\n");
-        exit(1);
-    }
-
-    if (img1 == img2){
-        return img1;
-    }
-    
-    if (img1 == NULL){
-        img1 = img2;
-        img2 = NULL;
-    }
-
-    if (img1->data == NULL){
-        fprintf(stderr, "ppm_image_copy: Image data was NULL\n");
-        exit(1);
-    }
-
-    if (img2 == NULL){
-        img2 = ppm_image_new_blank(img1->x, img1->y);
-    }
-
-    unsigned int i, lim;
-    lim = img1->x * img1->y;
-    for (i=0; i < lim; i++){
-        img2->data[i] = *ppm_pixel_copy(&img1->data[i], &img2->data[i]);
-    }
-    return img2;
-}
 
 bool has_ppm_extension(char* fp){
     if (!fp){
@@ -245,79 +155,8 @@ PPMImage* ppm_image_load(char* fp){
 
 }
 
-bool ppm_image_is_equal(const PPMImage* img1, const PPMImage* img2){
-    if (img1 == img2){
-        return true;
-    }
-    bool dimensions = ppm_image_equal_dimensions(img1, img2);
-    if (dimensions == false){
-        return false;
-    }
-    
-    unsigned int i, lim;
-    lim = img1->x * img1->y;
-    for(i = 0; i < lim; i++){
-        if (!ppm_pixel_is_equal(&img1->data[i], &img2->data[i])){
-            return false;
-        }
-    }
-    return true;
-}
-
-
-bool ppm_image_equal_dimensions(const PPMImage* img1, const PPMImage* img2){
-    if (img1 == img2){
-        return true;
-    }
-    if (img1 == NULL || img2 == NULL){
-        return false;
-    }
-
-    if(
-            img1->x != img2->x ||
-            img1->y != img2->y){
-        return false;
-    }
-
-    return true;
-
-}
 
 int ppm_image_compare(const PPMImage* img1, const PPMImage* img2){
-    if (img1 == NULL || img2 == NULL){
-#ifdef DEBUG
-        fprintf(stderr, "ppm_image_compare: pixels were null img1 %d img2 %d", img1==NULL, img2==NULL);
-#endif
-        return -1;
-    }
-    if (img1 == img2){
-        return 0;
-    }
-
-    if (!ppm_image_equal_dimensions(img1, img2)){
-#ifdef DEBUG
-        fprintf(stderr, "ppm_image_compare: images don't equal dimensions img1 [%d,%d] img2 [%d,%d]", img1->x, img1->y, img2->x, img2->y);
-#endif
-        return -1;
-    }
-
-    int total, temp, lim;
-    lim = img1->x * img1->y;
-    total = 0;
-    for(int i = 0; i < lim; i++){
-        temp = ppm_pixel_compare(&img1->data[i], &img2->data[i]);
-        if (temp == -1){
-#ifdef DEBUG
-            fprintf(stderr, "ppm_image_compare: ppm_pixel_compare returned -1");
-#endif
-            return -1;
-        }
-        total += temp;
-    }
-    return total;
-}
-
-int ppm_image_compare_unsafe(const PPMImage* img1, const PPMImage* img2){
     int total, lim;
     lim = img1->x * img1->y;
     total = 0;
@@ -325,32 +164,7 @@ int ppm_image_compare_unsafe(const PPMImage* img1, const PPMImage* img2){
     for(int i = 0; i < lim; i++){
         const PPMPixel* p1 = &img1->data[i];
         const PPMPixel* p2 = &img2->data[i];
-        total += abs(p1->R - p2->R) + abs(p1->G - p2->G) + abs(p1->B - p2->B);
-    }
-    return total;
-}
-
-long ppm_image_compare_weighted(const PPMImage* img1, const PPMImage* img2){
-    if (img1 == NULL || img2 == NULL){
-        return -1;
-    }
-    if (img1 == img2){
-        return 0;
-    }
-
-    if (!ppm_image_equal_dimensions(img1, img2)){
-        return -1;
-    }
-    
-    unsigned int i, lim, temp;
-    long total = 0;
-    lim = img1->x * img1->y;
-    for(i = 0; i < lim; i++){
-        temp = ppm_pixel_compare(&img1->data[i], &img2->data[i]);
-        if (temp == -1){
-            return -1; 
-        }
-        total += (temp * temp);
+        total += ppm_pixel_compare(p1, p2);
     }
     return total;
 }
@@ -399,23 +213,4 @@ void ppm_image_del(PPMImage* image){
         free(image->data);
     }
     free(image);
-}
-
-void ppm_image_print(PPMImage* image){
-    if (!image){
-        fprintf(stderr, "ppm_image_print: Image was NULL\n");
-        exit(1);
-    }
-    unsigned int x, y, i;
-    for(y = 0; y < image->y; y++){
-        for(x = 0; x < image->x; x++){
-            i = y * image->x + x;
-            ppm_pixel_print(&image->data[i]);
-        }
-        printf("\n");
-    }
-}
-
-void print_image_init_time(double total_time){
-    printf("\nNothing\n");
 }

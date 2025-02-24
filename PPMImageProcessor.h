@@ -63,21 +63,7 @@ Corner* corner_init(int x, int y);
  * (more than one corner is being pushed)
  * */
 void push_one_corner(Polygon* poly, Corner* p_corner);
-void push_corner(Polygon* poly, Corner* p_corner);
 
-/*
- * This function will remove a corner from the start of a polygon
- * 
- * Parameters:
- * poly - Pointer to the polygon
- *
- * Return:
- * Void (we won't ever need the popped corner)
- *
- * Errors:
- * head is NULL
- * */
-void pop_corner(Corner** head);
 void pop_all_corners(Polygon* poly);
 
 /*
@@ -129,9 +115,8 @@ EdgeTable* generate_global_edge_table(Polygon* p_polygon);
 Edge* sorted_insert(Edge* head, Edge* new_edge);
 void ppm_image_processor_draw_polygon(PPMImage* canvas, Polygon* p_polygon);
 void ppm_image_processor_draw_polygon_alt(PPMImage* canvas, Polygon* p_polygon, int final);
-PPMImage* ppm_image_processor_draw_polygons(PPMImageProcessor* proc);
+
 PPMImage* ppm_image_processor_draw_polygons_alt(PPMImageProcessor* proc, int final);
-void print_timings(double total);
 PPMImageProcessor* ppm_image_processor_copy(PPMImageProcessor* org_proc);
 
 #endif

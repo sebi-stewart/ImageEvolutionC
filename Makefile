@@ -1,5 +1,6 @@
 CC = gcc
 CFLAGS = -O3 -Wall
+TESTING_FLAGS = -O3 -w
 CC_ALT = clang
 PARALLEL_FLAGS = -Xclang -fopenmp -L/opt/homebrew/opt/libomp/lib -I/opt/homebrew/opt/libomp/include -lomp
 
@@ -19,8 +20,13 @@ PPM_IMAGE_PROCESSOR_HEADERS = PPMImageProcessor.h $(PPM_IMAGE_HEADERS)
 PPM_EVOLUTION_SOURCES = PPMEvolution.c $(PPM_IMAGE_PROCESSOR_SOURCES)
 PPM_EVOLUTION_HEADERS = PPMEvolution.h $(PPM_IMAGE_PROCESSOR_HEADERS)
 
+# Testing files
+MUNIT_SOURCE = test/munit/munit.c
+
 #Default Target
 all: run-PPMEvolution
+
+test: test-PPMPixel
 
 # PPMEvolution.o
 PPMEvolution.o: $(PPM_EVOLUTION_SOURCES) $(PPM_EVOLUTION_HEADERS)
@@ -59,3 +65,8 @@ clean:
 	@echo "Deleted object files"
 	rm -f *.ppm
 	@echo "Deleted image files"
+
+
+test-PPMPixel test/test_PPMPixel.c test/test_PPMPixel.h:
+	$(CC) $(TESTING_FLAGS) test/test_PPMPixel.c $(PPM_PIXEL_SOURCES) $(MUNIT_SOURCE) -o test/test_PPMPixel.o
+

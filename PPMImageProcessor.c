@@ -36,31 +36,6 @@ void push_one_corner(Polygon* poly, Corner* p_corner){
     poly->corners = p_corner;
 }
 
-void push_corner(Polygon* poly, Corner* p_corner){
-    if (poly == NULL){
-        fprintf(stderr, "push_corner: Polygon was NULL\n");
-        exit(1);
-    }
-    if (p_corner == NULL){
-        fprintf(stderr, "push_corner: Corner was NULL\n");
-        exit(1);
-    }
-    
-    p_corner->next = poly->corners;
-    poly->corners = p_corner;
-}
-
-void pop_corner(Corner** head){
-    if (head == NULL || *head == NULL) {
-        fprintf(stderr, "pop_corner: Corner was NULL\n");
-        exit(1);
-    }
-
-    Corner* next = (*head)->next;
-    free(*head);
-    *head = next;
-}
-
 void pop_all_corners(Polygon* poly) {
     if (poly == NULL) {
         fprintf(stderr, "pop_all_corners: Polygon was NULL\n");
@@ -186,7 +161,9 @@ void print_polygon(Polygon* polygon){
 }
 
 void print_image_processor(PPMImageProcessor* processor){
-    printf("Processor: \n");
+    printf("Processor: \nBackground: ");
+    ppm_pixel_print(processor->background);
+    printf("\n");
     Polygon* cur_polygon = processor->polygons;
     int count = 1;
     while (cur_polygon != NULL){
@@ -394,15 +371,11 @@ Edge* sorted_insert(Edge* head, Edge* new_edge) {
     return head;
 }
 
-void ppm_image_set_pixel_in_processor(PPMImage* image, int x, int y, unsigned char R, unsigned char G, unsigned char B){
-    ppm_pixel_set_unsafe(&image->data[y * image->x + x], R, G, B);
-}
-
 void ppm_image_processor_draw_polygon_alt(PPMImage* canvas, Polygon* p_polygon, int final){
     EdgeTable* global_edge_table = generate_global_edge_table(p_polygon);
-//    if (final){
-//        traverse_global_edge_table(global_edge_table);
-//    }
+    if (final){
+        traverse_global_edge_table(global_edge_table);
+    }
     if (global_edge_table->max_x > canvas->x){
         fprintf(stderr, "ppm_image_processor_draw_polygon_alt: GET->max_x (%d) was too large for canvas (%d)\n",
                 global_edge_table->max_x, canvas->x);
@@ -462,7 +435,7 @@ void ppm_image_processor_draw_polygon_alt(PPMImage* canvas, Polygon* p_polygon, 
 //            }
             if (x == cur_edge->comp_x_val){ // if the x of our current edge and our iteration match we are on a line
                 inside_polygon = !inside_polygon; // We either entered or left a polygon
-                if (cur_edge->dx_dy > 0) { // We add this conditional so that regressing lines or straight lines don't get printed outside of their boundaries
+                if (cur_edge->dx_dy > 0) { // We add this conditional so that regressing lines or straight lines don't get printed outside their boundaries
                     ppm_image_set_pixel(canvas, x, ymin, R, G, B);
                 }
                 cur_edge = cur_edge->next; // Go to the next edge
@@ -633,29 +606,6 @@ void ppm_image_processor_draw_polygon(PPMImage* canvas, Polygon* p_polygon) {
 #ifdef DEBUG_IMAGE_SAVE
     printf("ppm_image_processor_draw_polygon - end:\n");
 #endif
-}
-
-PPMImage* ppm_image_processor_draw_polygons(PPMImageProcessor* proc) {
-    if (proc == NULL) {
-        fprintf(stderr, "ppm_processor_draw_polygons: Image Processor was NULL\n");
-        exit(1);
-    }
-    PPMPixel* bg = proc->background;
-    PPMImage* canvas = ppm_image_init(proc->width, proc->height, bg->R, bg->G, bg->B);
-
-    if (proc->polygons == NULL) {
-#ifdef DEBUG_VERBOSE
-        fprintf(stdout, "ppm_processor_draw_polygons: No polygons to draw \n");
-#endif
-        return canvas;
-    }
-
-    Polygon* poly_head = proc->polygons;
-    while (poly_head != NULL) {
-        ppm_image_processor_draw_polygon(canvas, poly_head);
-        poly_head = poly_head->next;
-    }
-    return canvas;
 }
 
 PPMImage* ppm_image_processor_draw_polygons_alt(PPMImageProcessor* proc, int final) {

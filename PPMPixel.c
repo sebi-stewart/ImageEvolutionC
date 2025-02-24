@@ -14,7 +14,7 @@ PPMPixel* ppm_pixel_new(unsigned char R, unsigned char G, unsigned char B){
 }
 
 
-void ppm_pixel_set(PPMPixel* pixel, unsigned char R, unsigned char G, unsigned char B){
+void ppm_pixel_set(PPMPixel* pixel, short R, short G, short B){
     if (pixel == NULL){
         return;
     }
@@ -32,7 +32,7 @@ void ppm_pixel_set(PPMPixel* pixel, unsigned char R, unsigned char G, unsigned c
     pixel->B = B;
 }
 
-void ppm_pixel_set_unsafe(PPMPixel* pixel, unsigned char R, unsigned char G, unsigned char B){
+void ppm_pixel_set_unsafe(PPMPixel* pixel, short R, short G, short B){
     pixel->R = R;
     pixel->G = G;
     pixel->B = B;
@@ -61,34 +61,11 @@ PPMPixel* ppm_pixel_copy(PPMPixel* p1, PPMPixel* p2){
     return p2;
 }
 
-bool ppm_pixel_is_equal(const PPMPixel* p1, const PPMPixel* p2){
-    if (p1 == p2){
-        return true;
-    }
-    if (p1 == NULL || p2 == NULL){
-        return false;
-    }
-    if (p1->R == p2->R &&
-            p1->G == p2->G &&
-            p1->B == p2->B){
-        return true;
-    }
-    return false;
-}
-
 int ppm_pixel_compare(const PPMPixel* p1, const PPMPixel* p2){
     if (p1 == NULL || p2 == NULL){
         return -1;
     }
 
-    int sum = 0;
-    sum += abs(p1->R - p2->R);
-    sum += abs(p1->G - p2->G);
-    sum += abs(p1->B - p2->B);
-    return sum;
-}
-
-int ppm_pixel_compare_unsafe(const PPMPixel* p1, const PPMPixel* p2){
     int sum = 0;
     sum += abs(p1->R - p2->R);
     sum += abs(p1->G - p2->G);
@@ -111,33 +88,12 @@ char* ppm_pixel_to_string(PPMPixel* pixel){
     return pstring;
 }
 
-void ppm_pixel_print(const PPMPixel* pixel){
+void ppm_pixel_print(PPMPixel* pixel){
     if (pixel == NULL){
         printf("NULL");
         return;
     }
-    printf("%03d - %03d - %03d ", pixel->R, pixel->G, pixel->B);
-}
 
-//int main(void){
-//    PPMPixel* pixel1 = ppm_pixel_new(10, 50, 20);
-//    PPMPixel* pixel2 = ppm_pixel_new(15, 100, 40);
-//    PPMPixel* pixel3 = ppm_pixel_new(20, 150, 60);
-//    PPMPixel* pixel4 = ppm_pixel_new(25, 200, 80);
-//
-//    ppm_pixel_print(pixel1);
-//    ppm_pixel_print(pixel3);
-//    ppm_pixel_print(pixel2);
-//    ppm_pixel_print(pixel4);
-//
-//    printf("Pixel difference: %hd\n", ppm_pixel_compare(pixel1, pixel2));
-//    printf("Pixel difference: %hd\n", ppm_pixel_compare(pixel2, pixel3));
-//    printf("Pixel difference: %hd\n", ppm_pixel_compare(pixel3, pixel4));
-//    printf("Pixel difference: %hd\n", ppm_pixel_compare(pixel4, pixel1));
-//    printf("Pixel difference: %hd\n", ppm_pixel_compare(pixel2, pixel1));
-//
-//    PPMPixel pixel5 = {123, 123, 2234};
-//    ppm_pixel_print(&pixel5);
-//
-//    return 0;
-//}
+    char* pixel_string = ppm_pixel_to_string(pixel);
+    printf("%s", pixel_string);
+}

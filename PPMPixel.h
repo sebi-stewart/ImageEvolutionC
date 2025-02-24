@@ -16,11 +16,11 @@
 
 /*
  * Definers for the to string conversion
- * The buffer is of size 4 * 3 + 1
- * This means that we have 4 (3 maximum digits per RGB value + 1 white space) * 3 times + 1 null terminator
+ * The buffer is of size (3 * 3) + (3 * 2) + 1
+ * This means that we have 3 (3 maximum digits per RGB value) * 3 times + 3 (3 separators) * 2 + 1 null terminator
  * */
-#define PPM_STRING_BUFFER 13
-#define PPM_STRING_FORMAT "%u %u %u "
+#define PPM_STRING_BUFFER 16
+#define PPM_STRING_FORMAT "%03d - %03d - %03d"
 
 
 
@@ -65,8 +65,8 @@ PPMPixel* ppm_pixel_new(unsigned char R, unsigned char G, unsigned char B);
  * Return:
  * Pointer to assigned pixel
  * */
-void ppm_pixel_set(PPMPixel* pixel, unsigned char R, unsigned char G, unsigned char B);
-void ppm_pixel_set_unsafe(PPMPixel* pixel, unsigned char R, unsigned char G, unsigned char B);
+void ppm_pixel_set(PPMPixel* pixel, short R, short G, short B);
+void ppm_pixel_set_unsafe(PPMPixel* pixel, short R, short G, short B);
 
 /*
  * Copies the values of one pixel to the other
@@ -99,7 +99,6 @@ PPMPixel* ppm_pixel_copy(PPMPixel* p1, PPMPixel* p2);
  * Bool evaluation -> true | false
  * 
  * */
-bool ppm_pixel_is_equal(const PPMPixel* p1, const PPMPixel* p2);
 
 /*
  * This function compares how similar two pixels are in RGB values
@@ -114,7 +113,6 @@ bool ppm_pixel_is_equal(const PPMPixel* p1, const PPMPixel* p2);
  * If either value, or both are NULL -1 is returned
  * */
 int ppm_pixel_compare(const PPMPixel* p1, const PPMPixel* p2);
-int ppm_pixel_compare_unsafe(const PPMPixel* p1, const PPMPixel* p2);
 
 /*
  * This function converts a given pixel into a string of format 
@@ -141,5 +139,5 @@ char* ppm_pixel_to_string(PPMPixel* pixel);
  * Errors:
  * If pixel is null, the function is terminated
  * */
-void ppm_pixel_print(const PPMPixel* pixel);
+void ppm_pixel_print(PPMPixel* pixel);
 #endif
