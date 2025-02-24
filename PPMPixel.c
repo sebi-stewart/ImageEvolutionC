@@ -40,8 +40,8 @@ void ppm_pixel_set_unsafe(PPMPixel* pixel, short R, short G, short B){
 
 PPMPixel* ppm_pixel_copy(PPMPixel* p1, PPMPixel* p2){
     if (p1 == NULL && p2 == NULL){
-        fprintf(stderr, "ppm_pixel_copy: Both pixels were NULL");
-        exit(1);
+        fprintf(stdout, "ppm_pixel_copy: Both pixels were NULL");
+        return p1;
     }
 
     if (p1 == p2){
@@ -76,7 +76,7 @@ int ppm_pixel_compare(const PPMPixel* p1, const PPMPixel* p2){
 char* ppm_pixel_to_string(PPMPixel* pixel){
     if (!pixel){
         fprintf(stderr, "ppm_pixel_to_string: Pixel was NULL\n");
-            exit(1);
+            return "";
     }
     char* pstring = (char*)malloc(PPM_STRING_BUFFER);
     if (!pstring){
