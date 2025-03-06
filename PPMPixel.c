@@ -14,7 +14,7 @@ PPMPixel* ppm_pixel_new(unsigned char R, unsigned char G, unsigned char B){
 }
 
 
-void ppm_pixel_set(PPMPixel* pixel, short R, short G, short B){
+void ppm_pixel_set(PPMPixel* pixel, int R, int G, int B){
     if (pixel == NULL){
         return;
     }
@@ -32,7 +32,7 @@ void ppm_pixel_set(PPMPixel* pixel, short R, short G, short B){
     pixel->B = B;
 }
 
-void ppm_pixel_set_unsafe(PPMPixel* pixel, short R, short G, short B){
+void ppm_pixel_set_unsafe(PPMPixel* pixel, int R, int G, int B){
     pixel->R = R;
     pixel->G = G;
     pixel->B = B;

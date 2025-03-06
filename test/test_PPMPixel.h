@@ -6,6 +6,7 @@
 #define IMAGE_EVOLUTION_TEST_PPMPIXEL_H
 
 #include "munit/munit.h"
+
 static void*
 test_setup(const MunitParameter params[], void* user_data);
 static void

@@ -37,7 +37,7 @@ typedef struct {
  * Memory was not successfully allocated
  * Width or Height were not greater than 0
  * */
-PPMImage* ppm_image_init(unsigned int width, unsigned int height, unsigned int R, unsigned int G, unsigned int B);
+PPMImage* ppm_image_init(unsigned int width, unsigned int height, int R, int G, int B);
 
 
 /*

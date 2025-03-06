@@ -1,25 +1,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <time.h>
 #include "PPMImage.h"
 
-void ppm_pixel_set_same_file(PPMPixel* pixel, unsigned char R, unsigned char G, unsigned char B){
-    pixel->R = R;
-    pixel->G = G;
-    pixel->B = B;
-}
-
-PPMImage* ppm_image_init(const unsigned int width, const unsigned int height, const unsigned int R, const unsigned int G, const unsigned int B){
+PPMImage* ppm_image_init(const unsigned int width, const unsigned int height, const int R, const int G, const int B){
     if (width < 1 || height < 1){
         fprintf(stderr, "ppm_image_init: Height and/or Width of image were less than or equal to 0\n");
-        exit(1);
+        BREAK_OUT(1);
     }
 
     PPMImage *img = (PPMImage *) malloc(sizeof(PPMImage));
     if (!img){
         fprintf(stderr, "ppm_image_init: Unable to allocate memory\n");
-        exit(1);
+        BREAK_OUT(1);
     }
     
     img->x = (int)width;
@@ -28,7 +21,7 @@ PPMImage* ppm_image_init(const unsigned int width, const unsigned int height, co
 
     const int lim = (int) (width * height);
     for(int i = 0; i < lim; i++){
-        ppm_pixel_set_same_file(&img->data[i], R, G, B);
+        ppm_pixel_set(&img->data[i], R, G, B);
     }
     return img;
 
@@ -41,16 +34,16 @@ PPMImage* ppm_image_new_blank(const int width, const int height){
 PPMImage* ppm_image_set_pixel(PPMImage* image, int x, int y, unsigned char R, unsigned char G, unsigned char B){
     if (!image){
         fprintf(stderr, "ppm_image_set_pixel: Image was NULL\n");
-        exit(1);
+        BREAK_OUT(1);
     }
     if (!image->data){
         fprintf(stderr, "ppm_image_set_pixel: Image data was NULL\n");
-        exit(1);
+        BREAK_OUT(1);
     }
 
     if (x < 0 || x >= image->x || y < 0 || y >= image->y){
         fprintf(stderr, "ppm_image_set_pixel: X and/or Y value were out of bounds\n");
-        exit(1);
+        BREAK_OUT(1);
     }
 
     if (
@@ -58,7 +51,7 @@ PPMImage* ppm_image_set_pixel(PPMImage* image, int x, int y, unsigned char R, un
             G < 0 || G > PIXEL_COLOR_VALUE ||
             B < 0 || B > PIXEL_COLOR_VALUE){
         fprintf(stderr, "ppm_image_set_pixel: RGB values were out of bounds\n");
-        exit(1);
+        BREAK_OUT(1);
     }
 
     ppm_pixel_set_unsafe(&image->data[y * image->x + x], R, G, B);
@@ -69,7 +62,7 @@ PPMImage* ppm_image_set_pixel(PPMImage* image, int x, int y, unsigned char R, un
 bool has_ppm_extension(char* fp){
     if (!fp){
         fprintf(stderr, "has_ppm_extension: Filepath was NULL\n");
-        exit(1);
+        BREAK_OUT(1);
     }
 
     size_t len = strlen(fp);
@@ -88,24 +81,24 @@ PPMImage* ppm_image_load(char* fp){
 
     if (!has_ppm_extension(fp)){
         fprintf(stderr, "ppm_image_load: File didn't end in PPM or was not long enough\n");
-        exit(1);
+        BREAK_OUT(1);
     }
 
     FILE *file = fopen(fp, "rb");
     if (!file){
         fprintf(stderr, "ppm_image_load: Unable to open file\n");
-        exit(1);
+        BREAK_OUT(1);
     }
 
     // Read and Check image format
     if (!fgets(buff, sizeof(buff), file)){
         fprintf(stderr, "ppm_image_load: Unable to read file\n");
-        exit(1);
+        BREAK_OUT(1);
     }
 
     if (buff[0] != 'P' || buff[1] != '6'){
         fprintf(stderr, "ppm_image_load: Invalid Image format (must be P6)\n");
-        exit(1);
+        BREAK_OUT(1);
     }
 
     int c, x, y, rgb_comp_colour;
@@ -120,19 +113,19 @@ PPMImage* ppm_image_load(char* fp){
     // Read image size information
     if (fscanf(file, PPM_SIZE_FORMAT, &x, &y) != 2 || x <= 0 || y <= 0){
         fprintf(stderr, "ppm_image_load: Invalid image size\n");
-        exit(1);
+        BREAK_OUT(1);
     }
 
     // Read RGB Component
     if (fscanf(file, PPM_RGB_FORMAT, &rgb_comp_colour) != 1){
         fprintf(stderr, "ppm_image_load: Invalid RGB Component\n");
-        exit(1);
+        BREAK_OUT(1);
     }
 
     // Check RGB Component depth
     if (rgb_comp_colour != PIXEL_COLOR_VALUE){
         fprintf(stderr, "ppm_image_load: File does not contain 8-bit components\n");
-        exit(1);
+        BREAK_OUT(1);
     }
 
     while (fgetc(file) != '\n') {}
@@ -141,13 +134,13 @@ PPMImage* ppm_image_load(char* fp){
     PPMImage *img = ppm_image_new_blank(x, y);
     if (!img || !img->data){
         fprintf(stderr, "ppm_image_load: Unable to allocate memory for image\n");
-        exit(1);
+        BREAK_OUT(1);
     }
 
     // Load image data
     if (fread(img->data, 3 * img->x, img->y, file) != img->y){
         fprintf(stderr, "ppm_image_load: Unable to load image data\n");
-        exit(1);
+        BREAK_OUT(1);
     } 
 
     fclose(file);
@@ -173,17 +166,17 @@ int ppm_image_compare(const PPMImage* img1, const PPMImage* img2){
 void ppm_image_save(PPMImage* image, char* fp){
     if (!image){
         fprintf(stderr, "ppm_image_save: Image was NULL\n");
-        exit(1);
+        BREAK_OUT_VOID(1);
     }
 
     if (!fp){
         fprintf(stderr, "ppm_image_save: Filepath was NULL\n");
-        exit(1);
+        BREAK_OUT_VOID(1);
     }
 
     if (!has_ppm_extension(fp)){
         fprintf(stderr, "ppm_image_save: Filepath didn't end in PPM or was not long enough");
-        exit(1);
+        BREAK_OUT_VOID(1);
     }
 
     FILE *file;
@@ -191,7 +184,7 @@ void ppm_image_save(PPMImage* image, char* fp){
     file = fopen(fp, "wb");
     if (!file){
         fprintf(stderr, "ppm_image_save: File was unable to be created");
-        exit(1);
+        BREAK_OUT_VOID(1);
     }
     
     // Write the header to the file
@@ -206,7 +199,7 @@ void ppm_image_save(PPMImage* image, char* fp){
 void ppm_image_del(PPMImage* image){
     if (!image){
         fprintf(stderr, "ppm_image_del: Image was NULL\n");
-        exit(1);
+        BREAK_OUT_VOID(1);
     }
     
     if (image->data){ 

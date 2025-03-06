@@ -115,7 +115,7 @@ MunitTest tests[] = {
 };
 
 static const MunitSuite suite = {
-        "/my-tests", /* name */
+        "/PPMPixel-tests", /* name */
         tests, /* tests */
         NULL, /* suites */
         1, /* iterations */

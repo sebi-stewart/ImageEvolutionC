@@ -2,6 +2,7 @@
 #define IMAGE_EVOLUTION_PPM_PIXEL_H
 
 #include <stdbool.h>
+#include "PPMMacros.h"
 
 #define DEBUG
 //#define DEBUG_VERBOSE
@@ -65,8 +66,8 @@ PPMPixel* ppm_pixel_new(unsigned char R, unsigned char G, unsigned char B);
  * Return:
  * Pointer to assigned pixel
  * */
-void ppm_pixel_set(PPMPixel* pixel, short R, short G, short B);
-void ppm_pixel_set_unsafe(PPMPixel* pixel, short R, short G, short B);
+void ppm_pixel_set(PPMPixel* pixel, int R, int G, int B);
+void ppm_pixel_set_unsafe(PPMPixel* pixel, int R, int G, int B);
 
 /*
  * Copies the values of one pixel to the other

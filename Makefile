@@ -1,12 +1,16 @@
 CC = gcc
 CFLAGS = -O3 -Wall
-TESTING_FLAGS = -O3 -w
+TESTING_FLAGS = -O3 -w -DPPM_TESTING
 CC_ALT = clang
 PARALLEL_FLAGS = -Xclang -fopenmp -L/opt/homebrew/opt/libomp/lib -I/opt/homebrew/opt/libomp/include -lomp
 
+# Global Sources/Headers
+PPM_GLOBAL_SOURCES = PPMMacros.c
+PPM_GLOBAL_HEADERS = PPMMacros.h
+
 # Pixel Sources/Headers
-PPM_PIXEL_SOURCES = PPMPixel.c
-PPM_PIXEL_HEADERS = PPMPixel.h
+PPM_PIXEL_SOURCES = PPMPixel.c $(PPM_GLOBAL_SOURCES)
+PPM_PIXEL_HEADERS = PPMPixel.h $(PPM_GLOBAL_HEADERS)
 
 # Image Sources/Headers
 PPM_IMAGE_SOURCES = PPMImage.c $(PPM_PIXEL_SOURCES)
@@ -69,4 +73,7 @@ clean:
 
 test-PPMPixel test/test_PPMPixel.c test/test_PPMPixel.h:
 	$(CC) $(TESTING_FLAGS) test/test_PPMPixel.c $(PPM_PIXEL_SOURCES) $(MUNIT_SOURCE) -o test/test_PPMPixel.o
+
+test-PPMImage test/test_PPMImage.c test/test_PPMImage.h:
+	$(CC) $(TESTING_FLAGS) test/test_PPMImage.c $(PPM_IMAGE_SOURCES) $(MUNIT_SOURCE) -o test/test_PPMImage.o
 
