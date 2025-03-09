@@ -16,14 +16,20 @@ MunitTest tests[] = {
         { "/test-image-pixel-colour-out-of-bounds", test_image_set_pixel_colour_out_of_bounds, test_setup, test_tear_down, MUNIT_TEST_OPTION_NONE, NULL },
         { "/test-has-ppm-extension", test_has_ppm_extension, test_setup, test_tear_down, MUNIT_TEST_OPTION_NONE, NULL },
         { "/test-has-ppm-extension-null", test_has_ppm_extension_null, test_setup, test_tear_down, MUNIT_TEST_OPTION_NONE, NULL },
-        { "/ppm_image_load_valid_file", ppm_image_load_valid_file, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
-        { "/ppm_image_load_invalid_extension", ppm_image_load_invalid_extension, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
-        { "/ppm_image_load_nonexistent_file", ppm_image_load_nonexistent_file, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
-        { "/ppm_image_load_invalid_format", ppm_image_load_invalid_format, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
-        { "/ppm_image_load_invalid_size", ppm_image_load_invalid_size, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
-        { "/ppm_image_load_invalid_rgb_component", ppm_image_load_invalid_rgb_component, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
-        { "/ppm_image_compare_identical_images", ppm_image_compare_identical_images, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
-        { "/ppm_image_compare_different_images", ppm_image_compare_different_images, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
+        { "/test-image-load-valid-file", test_image_load_valid_file, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
+        { "/test-image-load-invalid-extension", test_image_load_invalid_extension, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
+        { "/test-image-load-nonexistent-file", test_image_load_nonexistent_file, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
+        { "/test-image-load-invalid-format", test_image_load_invalid_format, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
+        { "/test-image-load-invalid-size", test_image_load_invalid_size, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
+        { "/test-image-load-invalid-rgb-component", test_image_load_invalid_rgb_component, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
+        { "/test-image-compare-identical-images", test_image_compare_identical_images, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
+        { "/test-image-compare-different-images", test_image_compare_different_images, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
+        { "/test-image-save-valid-image", test_image_save_valid_image, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
+        { "/test-image-save-null-image", test_image_save_null_image, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
+        { "/test-image-save-null-filepath", test_image_save_null_filepath, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
+        { "/test-image-save-invalid-extension", test_image_save_invalid_extension, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
+        { "/test-image-del-valid-image", test_image_del_valid_image, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
+        { "/test-image-del-null-image", test_image_del_null_image, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
         { NULL, NULL, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL }
 };
 
@@ -177,7 +183,7 @@ MunitResult test_has_ppm_extension_null(const MunitParameter params[], void* fix
     return result ? MUNIT_OK : MUNIT_FAIL;
 }
 
-MunitResult ppm_image_load_valid_file(const MunitParameter params[], void* fixture) {
+MunitResult test_image_load_valid_file(const MunitParameter params[], void* fixture) {
     PPMImage* img = ppm_image_load("./test/images/test.ppm");
     munit_assert_not_null(img);
     munit_assert_int(img->x, >, 0);
@@ -187,35 +193,35 @@ MunitResult ppm_image_load_valid_file(const MunitParameter params[], void* fixtu
     return MUNIT_OK;
 }
 
-MunitResult ppm_image_load_invalid_extension(const MunitParameter params[], void* fixture) {
+MunitResult test_image_load_invalid_extension(const MunitParameter params[], void* fixture) {
     PPMImage* img = ppm_image_load("./test/images/invalid_image.txt");
     munit_assert_null(img);
     bool result = retrieve_err_call_and_compare((CallData){.count=1, .function_name="ppm_image_load@84"});
     return result ? MUNIT_OK : MUNIT_FAIL;
 }
 
-MunitResult ppm_image_load_nonexistent_file(const MunitParameter params[], void* fixture) {
+MunitResult test_image_load_nonexistent_file(const MunitParameter params[], void* fixture) {
     PPMImage* img = ppm_image_load("./test/images/nonexistent_image.ppm");
     munit_assert_null(img);
     bool result = retrieve_err_call_and_compare((CallData){.count=1, .function_name="ppm_image_load@90"});
     return result ? MUNIT_OK : MUNIT_FAIL;
 }
 
-MunitResult ppm_image_load_invalid_format(const MunitParameter params[], void* fixture) {
+MunitResult test_image_load_invalid_format(const MunitParameter params[], void* fixture) {
     PPMImage* img = ppm_image_load("./test/images/invalid_format.ppm");
     munit_assert_null(img);
     bool result = retrieve_err_call_and_compare((CallData){.count=1, .function_name="ppm_image_load@101"});
     return result ? MUNIT_OK : MUNIT_FAIL;
 }
 
-MunitResult ppm_image_load_invalid_size(const MunitParameter params[], void* fixture) {
+MunitResult test_image_load_invalid_size(const MunitParameter params[], void* fixture) {
     PPMImage* img = ppm_image_load("./test/images/invalid_size.ppm");
     munit_assert_null(img);
     bool result = retrieve_err_call_and_compare((CallData){.count=1, .function_name="ppm_image_load@116"});
     return result ? MUNIT_OK : MUNIT_FAIL;
 }
 
-MunitResult ppm_image_load_invalid_rgb_component(const MunitParameter params[], void* fixture) {
+MunitResult test_image_load_invalid_rgb_component(const MunitParameter params[], void* fixture) {
     PPMImage* img1 = ppm_image_load("./test/images/invalid_rgb_component1.ppm");
     bool result = retrieve_err_call_and_compare((CallData){.count=1, .function_name="ppm_image_load@122"});
     munit_assert_null(img1);
@@ -227,7 +233,7 @@ MunitResult ppm_image_load_invalid_rgb_component(const MunitParameter params[], 
     return result ? MUNIT_OK : MUNIT_FAIL;
 }
 
-MunitResult ppm_image_compare_identical_images(const MunitParameter params[], void* fixture) {
+MunitResult test_image_compare_identical_images(const MunitParameter params[], void* fixture) {
     PPMImage* img1 = ppm_image_load("test.ppm");
     PPMImage* img2 = ppm_image_load("test.ppm");
     int diff = ppm_image_compare(img1, img2);
@@ -237,7 +243,7 @@ MunitResult ppm_image_compare_identical_images(const MunitParameter params[], vo
     return MUNIT_OK;
 }
 
-MunitResult ppm_image_compare_different_images(const MunitParameter params[], void* fixture) {
+MunitResult test_image_compare_different_images(const MunitParameter params[], void* fixture) {
     PPMImage* img1 = ppm_image_load("test.ppm");
     PPMImage* img2 = ppm_image_load("best.ppm");
     int diff = ppm_image_compare(img1, img2);
@@ -245,6 +251,61 @@ MunitResult ppm_image_compare_different_images(const MunitParameter params[], vo
     ppm_image_del(img1);
     ppm_image_del(img2);
     return MUNIT_OK;
+}
+
+MunitResult test_image_save_valid_image(const MunitParameter params[], void* fixture) {
+    PPMImage* img = ppm_image_new_blank(10, 10);
+    ppm_image_save(img, "valid_image.ppm");
+    FILE* file = fopen("valid_image.ppm", "rb");
+    munit_assert_not_null(file);
+    fclose(file);
+    ppm_image_del(img);
+    remove("valid_image.ppm");
+    return MUNIT_OK;
+}
+
+MunitResult test_image_save_null_image(const MunitParameter params[], void* fixture) {
+    ppm_image_save(NULL, "null_image.ppm");
+    FILE* file = fopen("null_image.ppm", "rb");
+    munit_assert_null(file);
+    bool result = retrieve_err_call_and_compare((CallData){.count=1, .function_name="ppm_image_save@169"});
+
+    return result ? MUNIT_OK : MUNIT_FAIL;
+}
+
+MunitResult test_image_save_null_filepath(const MunitParameter params[], void* fixture) {
+    PPMImage* img = ppm_image_new_blank(10, 10);
+    ppm_image_save(img, NULL);
+    ppm_image_del(img);
+    bool result = retrieve_err_call_and_compare((CallData){.count=1, .function_name="ppm_image_save@174"});
+
+    return result ? MUNIT_OK : MUNIT_FAIL;
+}
+
+MunitResult test_image_save_invalid_extension(const MunitParameter params[], void* fixture) {
+    PPMImage* img = ppm_image_new_blank(10, 10);
+    ppm_image_save(img, "invalid_image.txt");
+    FILE* file = fopen("invalid_image.txt", "rb");
+    munit_assert_null(file);
+    ppm_image_del(img);
+    bool result = retrieve_err_call_and_compare((CallData){.count=1, .function_name="ppm_image_save@179"});
+
+    return result ? MUNIT_OK : MUNIT_FAIL;
+}
+
+MunitResult test_image_del_valid_image(const MunitParameter params[], void* fixture) {
+    PPMImage* img = ppm_image_new_blank(10, 10);
+    ppm_image_del(img);
+    munit_assert_null(img->data);
+
+    return MUNIT_OK;
+}
+
+MunitResult test_image_del_null_image(const MunitParameter params[], void* fixture) {
+    ppm_image_del(NULL);
+    bool result = retrieve_err_call_and_compare((CallData){.count=1, .function_name="ppm_image_del@202"});
+
+    return result ? MUNIT_OK : MUNIT_FAIL;
 }
 
 int main(void) {
