@@ -34,7 +34,7 @@ void ppm_evolution_population_evaluate(PPMImage* org, Population* comparison){
         }
 
         PPMImage* cur_image = ppm_image_processor_draw_polygons_alt(current_processor, false);
-        current_individual->eval = ppm_image_compare_unsafe(org, cur_image);
+        current_individual->eval = ppm_image_compare(org, cur_image);
         ppm_image_del(cur_image);
     }
 

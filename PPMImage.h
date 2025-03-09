@@ -78,7 +78,7 @@ PPMImage* ppm_image_new_blank(int width, int height);
  * X, or Y were out of bounds
  * RGB values were out of bounds
  * */
-PPMImage* ppm_image_set_pixel(PPMImage* image, int x, int y, unsigned char R, unsigned char G, unsigned char B);
+PPMImage* ppm_image_set_pixel(PPMImage* image, int x, int y, int R, int G, int B);
 
 /*
  * Check if a given filepath has the ppm extension
@@ -118,9 +118,19 @@ bool has_ppm_extension(char* fp);
  * */
 PPMImage* ppm_image_load(char* fp);
 
-
-int ppm_image_compare_unsafe(const PPMImage* img1, const PPMImage* img2);
-
+/*
+ * This function compares the difference in pixel values of the images
+ * Relies on integers being 32 bits long
+ *
+ * Parameters:
+ * img1 - Non-NULL pointer to a PPMImage
+ * img2 - Non-NULL pointer to a PPMImage
+ *
+ * Return:
+ * Integer evaluation -> 0 - (PIXEL_COLOR_VALUE-1)*3*width*height
+ * If either value, or both are NULL -> -1
+ * */
+int ppm_image_compare(const PPMImage* img1, const PPMImage* img2);
 
 /*
  * Saves a given PPMImage to a specified filepath

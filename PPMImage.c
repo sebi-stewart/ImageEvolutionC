@@ -31,7 +31,7 @@ PPMImage* ppm_image_new_blank(const int width, const int height){
     return ppm_image_init(width, height, 0, 0, 0);
 }
 
-PPMImage* ppm_image_set_pixel(PPMImage* image, int x, int y, unsigned char R, unsigned char G, unsigned char B){
+PPMImage* ppm_image_set_pixel(PPMImage* image, int x, int y, int R, int G, int B){
     if (!image){
         fprintf(stderr, "ppm_image_set_pixel: Image was NULL\n");
         BREAK_OUT(1);
@@ -68,8 +68,8 @@ bool has_ppm_extension(char* fp){
     size_t len = strlen(fp);
     if (len > 4){
         const char* last4 = fp + len - 4;
-        if (strcmp(last4, ".ppm") == 0) {
-            return true; 
+        if (strcasecmp(last4, ".ppm") == 0) {
+            return true;
         }
     }
 

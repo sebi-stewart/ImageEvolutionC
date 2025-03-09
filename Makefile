@@ -74,6 +74,6 @@ clean:
 test-PPMPixel test/test_PPMPixel.c test/test_PPMPixel.h:
 	$(CC) $(TESTING_FLAGS) test/test_PPMPixel.c $(PPM_PIXEL_SOURCES) $(MUNIT_SOURCE) -o test/test_PPMPixel.o
 
-test-PPMImage test/test_PPMImage.c test/test_PPMImage.h:
+test-PPMImage:
 	$(CC) $(TESTING_FLAGS) test/test_PPMImage.c $(PPM_IMAGE_SOURCES) $(MUNIT_SOURCE) -o test/test_PPMImage.o
 

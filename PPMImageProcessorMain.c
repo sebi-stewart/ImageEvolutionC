@@ -35,7 +35,7 @@ int main(void){
     PPMImage* alt_image = ppm_image_processor_draw_polygons_alt(new_proc, true);
     print_image_processor(new_proc);
 
-    ppm_image_save(alt_image, "test2.ppm");
+    ppm_image_save(alt_image, "extra.ppm");
 
     ppm_image_processor_free(new_proc);
     ppm_image_del(alt_image);

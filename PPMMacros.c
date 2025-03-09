@@ -9,12 +9,17 @@
 #define CALL_TO_FILE_FORMAT_NEWLINE "%d::%s\n"
 
 
-void print_call_to_file(int exit_code, char* function_name){
-    printf("\n\texit() called from %s with exit code %d\t", function_name, exit_code);
+void print_call_to_file(int exit_code, char* function_name, int line_number){
+
+    printf("\n\texit() called from %s at line %d with exit code %d\t", function_name, line_number, exit_code);
 
     FILE *file = fopen(TESTING_FILE, "r");
     char line[MAX_LINE];
     int found = false;
+
+    // Update function name with the line number
+    char updated_function_name[MAX_LINE];
+    sprintf(updated_function_name, "%s@%d", function_name, line_number);
 
     // Temporary storage for updated data
     char buffer[10000] = "";
@@ -23,7 +28,7 @@ void print_call_to_file(int exit_code, char* function_name){
     if (file){
         while (fgets(line, sizeof(line), file)) {
             if (sscanf(line, CALL_TO_FILE_FORMAT_NEWLINE, &count, temp_function) == 2) {
-                if (strcmp(temp_function, function_name) == 0) {
+                if (strcmp(temp_function, updated_function_name) == 0) {
                     count++;
                     found = true;
                 }
@@ -37,7 +42,7 @@ void print_call_to_file(int exit_code, char* function_name){
 
     if (!found) {
         char new_entry[MAX_LINE];
-        sprintf(new_entry, CALL_TO_FILE_FORMAT_NEWLINE, 1, function_name);
+        sprintf(new_entry, CALL_TO_FILE_FORMAT_NEWLINE, 1, updated_function_name);
         strcat(buffer, new_entry);
     }
 
@@ -93,10 +98,6 @@ CallList* retrieve_call_list(){
     }
     fclose(file);
 
-    CallList list2 = {.data= {&(CallData){.count=2, .function_name="retrieve_call_list"},
-                              &(CallData){.count=2, .function_name="retrieve_call_list"}},
-                      .size= list->size};
-
     return list;
 }
 
@@ -136,9 +137,25 @@ void free_call_list(CallList* list){
     free(list);
 }
 
+void print_call_data(CallData data){
+    fprintf(stderr, "Function: %s, Count: %d\n", data.function_name, data.count);
+}
+
+void print_call_list(CallList* list){
+    for (int i = 0; i < list->size; i++){
+        print_call_data(list->data[i]);
+    }
+}
+
 bool retrieve_err_call_list_and_compare(CallList* expected){
     CallList* actual = retrieve_call_list();
     bool result = has_function_calls(expected, actual);
+    if (!result){
+        fprintf(stderr, "Expected:\n");
+        print_call_list(expected);
+        fprintf(stderr, "Actual:\n");
+        print_call_list(actual);
+    }
     free_call_list(actual);
     clear_call_file();
     return result;
@@ -147,6 +164,12 @@ bool retrieve_err_call_list_and_compare(CallList* expected){
 bool retrieve_err_call_and_compare(CallData expected){
     CallList* list = retrieve_call_list();
     bool result = has_called_function_times(list, expected);
+    if (!result){
+        fprintf(stderr, "Expected:\n");
+        print_call_data(expected);
+        fprintf(stderr, "Actual:\n");
+        print_call_list(list);
+    }
     free_call_list(list);
     clear_call_file();
     return result;
