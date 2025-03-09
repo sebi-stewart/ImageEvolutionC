@@ -217,8 +217,8 @@ MunitResult test_image_load_invalid_rgb_component(const MunitParameter params[],
 }
 
 MunitResult test_image_compare_identical_images(const MunitParameter params[], void* fixture) {
-    PPMImage* img1 = ppm_image_load("test.ppm");
-    PPMImage* img2 = ppm_image_load("test.ppm");
+    PPMImage* img1 = ppm_image_load("test/images/test.ppm");
+    PPMImage* img2 = ppm_image_load("test/images/test.ppm");
     int diff = ppm_image_compare(img1, img2);
     munit_assert_int(diff, ==, 0);
     ppm_image_del(img1);
@@ -227,8 +227,8 @@ MunitResult test_image_compare_identical_images(const MunitParameter params[], v
 }
 
 MunitResult test_image_compare_different_images(const MunitParameter params[], void* fixture) {
-    PPMImage* img1 = ppm_image_load("test.ppm");
-    PPMImage* img2 = ppm_image_load("best.ppm");
+    PPMImage* img1 = ppm_image_load("test/images/test.ppm");
+    PPMImage* img2 = ppm_image_load("images/originals/original.ppm");
     int diff = ppm_image_compare(img1, img2);
     munit_assert_int(diff, >, 0);
     ppm_image_del(img1);
