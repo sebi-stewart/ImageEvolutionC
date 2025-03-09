@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include "PPMMacros.h"
 
-#define DEBUG
+//#define DEBUG
 //#define DEBUG_VERBOSE
 //#define DEBUG_IMAGE_SAVE
 

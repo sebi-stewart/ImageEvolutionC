@@ -10,11 +10,10 @@
 #include "../PPMImage.h"
 
 static void*
-test_setup(const MunitParameter params[], void* user_data);
+test_image_setup(const MunitParameter params[], void* user_data);
 static void
-test_tear_down(void* fixture);
+test_image_tear_down(void* fixture);
 
-MunitResult are_images_equal(PPMImage* image1, PPMImage* image2);
 MunitResult are_all_pixels_equal(PPMImage* image, PPMPixel* comparison);
 
 MunitResult test_image_init(const MunitParameter params[], void* fixture);

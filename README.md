@@ -26,5 +26,12 @@ Depending on the machine this is being run on threading can be increased by usin
 Where the number after the `=` determines how many threads are created during the evaluation process of the program.
 Here I do recommend to use powers of 2 to determine how many threads to use.
 
-## Testing Evidence
-With this program I did several sets of testing, including manual run big bang test of the program and unit testing (yet to come) as well for many of the basic functions, where the basic functionality was asserted and made sure to work. 
+## Testing
+With this program I did several sets of testing, including manual run big bang test of the program and unit testing for the basic functionality such as the polygon creation and the image creation. This can both be tested by using the 
+```shell
+    make test-PPMPixel
+    ./test/test_PPMPixel.o
+    make test-PPMImage
+    ./test/test_PPMImage.o
+``` 
+commands in the terminal.

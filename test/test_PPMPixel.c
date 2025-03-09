@@ -6,129 +6,32 @@
 #include "../PPMPixel.h"
 #include "munit/munit.h"
 
-MunitTest tests[] = {
-        {
-                "/test-pixel-set-overflow",
-                test_pixel_set_overflow,
-                test_setup,
-                test_tear_down,
-                MUNIT_TEST_OPTION_NONE,
-                NULL
-        },
-        {
-                "/test-pixel-set-negative",
-                test_pixel_set_negative,
-                test_setup,
-                test_tear_down,
-                MUNIT_TEST_OPTION_NONE,
-                NULL
-        },
-        {
-                "/test-pixel-set-regular",
-                test_pixel_set_regular,
-                test_setup,
-                test_tear_down,
-                MUNIT_TEST_OPTION_NONE,
-                NULL
-        },
-    {
-                "/test-pixel-copy-regular",
-                test_pixel_copy_regular,
-                test_setup,
-                test_tear_down,
-                MUNIT_TEST_OPTION_NONE,
-                NULL
-        },
-    {
-                "/test-pixel-copy-no-first-pointer",
-                test_pixel_copy_no_first_pointer,
-                test_setup,
-                test_tear_down,
-                MUNIT_TEST_OPTION_NONE,
-                NULL
-        },
-    {
-                "/test-pixel-copy-no-second-pointer",
-                test_pixel_copy_no_second_pointer,
-                test_setup,
-                test_tear_down,
-                MUNIT_TEST_OPTION_NONE,
-                NULL
-        },
-    {
-                "/test-pixel-copy-both-pointers-equal",
-                test_pixel_copy_both_pointer_equal,
-                test_setup,
-                test_tear_down,
-                MUNIT_TEST_OPTION_NONE,
-                NULL
-        },
-    {
-                "/test-pixel-copy-both-pointers-null",
-                test_pixel_copy_both_pointer_null,
-                test_setup,
-                test_tear_down,
-                MUNIT_TEST_OPTION_NONE,
-                NULL
-        },
-    {
-                "/test-pixel-compare-one-pointer-is-null",
-                test_pixel_compare_one_pointer_is_null,
-                test_setup,
-                test_tear_down,
-                MUNIT_TEST_OPTION_NONE,
-                NULL
-        },
-    {
-                "/test-pixel-compare-regular",
-                test_pixel_compare_regular,
-                test_setup,
-                test_tear_down,
-                MUNIT_TEST_OPTION_NONE,
-                NULL
-        },
-        {
-                "/test-pixel-to-string-regular",
-                test_pixel_to_string_regular,
-                test_setup,
-                test_tear_down,
-                MUNIT_TEST_OPTION_NONE,
-                NULL
-        },
-        {
-                "/test-pixel-to-string-regular-second",
-                test_pixel_to_string_regular_second,
-                test_setup,
-                test_tear_down,
-                MUNIT_TEST_OPTION_NONE,
-                NULL
-        },
-        {
-                "/test-pixel-to-string-error-no-pointer",
-                test_pixel_to_string_error_no_pointer,
-                test_setup,
-                test_tear_down,
-                MUNIT_TEST_OPTION_NONE,
-                NULL
-        },
+MunitTest ppm_pixel_tests[] = {
+        { "/test-pixel-set-overflow", test_pixel_set_overflow, test_pixel_setup, test_pixel_tear_down, MUNIT_TEST_OPTION_NONE, NULL },
+        { "/test-pixel-set-negative", test_pixel_set_negative, test_pixel_setup, test_pixel_tear_down, MUNIT_TEST_OPTION_NONE, NULL },
+        { "/test-pixel-set-regular", test_pixel_set_regular, test_pixel_setup, test_pixel_tear_down, MUNIT_TEST_OPTION_NONE, NULL },
+        { "/test-pixel-copy-regular", test_pixel_copy_regular, test_pixel_setup, test_pixel_tear_down, MUNIT_TEST_OPTION_NONE, NULL },
+        { "/test-pixel-copy-no-first-pointer", test_pixel_copy_no_first_pointer, test_pixel_setup, test_pixel_tear_down, MUNIT_TEST_OPTION_NONE, NULL },
+        { "/test-pixel-copy-no-second-pointer", test_pixel_copy_no_second_pointer, test_pixel_setup, test_pixel_tear_down, MUNIT_TEST_OPTION_NONE, NULL },
+        { "/test-pixel-copy-both-pointers-equal", test_pixel_copy_both_pointer_equal, test_pixel_setup, test_pixel_tear_down, MUNIT_TEST_OPTION_NONE, NULL },
+        { "/test-pixel-copy-both-pointers-null", test_pixel_copy_both_pointer_null, test_pixel_setup, test_pixel_tear_down, MUNIT_TEST_OPTION_NONE, NULL },
+        { "/test-pixel-compare-one-pointer-is-null", test_pixel_compare_one_pointer_is_null, test_pixel_setup, test_pixel_tear_down, MUNIT_TEST_OPTION_NONE, NULL },
+        { "/test-pixel-compare-regular", test_pixel_compare_regular, test_pixel_setup, test_pixel_tear_down, MUNIT_TEST_OPTION_NONE, NULL },
+        { "/test-pixel-to-string-regular", test_pixel_to_string_regular, test_pixel_setup, test_pixel_tear_down, MUNIT_TEST_OPTION_NONE, NULL },
+        { "/test-pixel-to-string-regular-second", test_pixel_to_string_regular_second, test_pixel_setup, test_pixel_tear_down, MUNIT_TEST_OPTION_NONE, NULL },
+        { "/test-pixel-to-string-error-no-pointer", test_pixel_to_string_error_no_pointer, test_pixel_setup, test_pixel_tear_down, MUNIT_TEST_OPTION_NONE, NULL },
         { NULL, NULL, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL }
 };
 
-static const MunitSuite suite = {
-        "/PPMPixel-tests", /* name */
-        tests, /* tests */
-        NULL, /* suites */
-        1, /* iterations */
-        MUNIT_SUITE_OPTION_NONE /* options */
-};
+static const MunitSuite ppm_pixel_suite = {"/PPMPixel-tests", ppm_pixel_tests, NULL, 1, MUNIT_SUITE_OPTION_NONE};
 
 static void*
-test_setup(const MunitParameter params[], void* user_data) {
+test_pixel_setup(const MunitParameter params[], void* user_data) {
     return ppm_pixel_new(0, 0, 0);
 }
 
 static void
-test_tear_down(void* fixture) {
+test_pixel_tear_down(void* fixture) {
     free(fixture);
 }
 
@@ -264,5 +167,5 @@ MunitResult test_pixel_to_string_error_no_pointer(const MunitParameter params[],
 
 
 int main(void) {
-    return munit_suite_main(&suite, NULL, 0, NULL);
+    return munit_suite_main(&ppm_pixel_suite, NULL, 0, NULL);
 }

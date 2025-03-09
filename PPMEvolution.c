@@ -478,25 +478,29 @@ void run(char* image_filepath, int population_size, int generation_count, int ra
     printf("Generation %5c | Best\n", ' ');
     for (int i = 1; i < generation_count; i++) {
         ppm_evolution_runner(base_image, population, &functions, generation_count);
-        if (i % 100 == 0){
+        if (i % (generation_count/100) == 0){
             printf("Generation %5d | %3.4f\n", i, (double)(MAX_EVAL-population->best->eval)/(double)MAX_EVAL * 100);
         }
     }
 
     printf("Best image fitness of: %3.4f\n", (double)(MAX_EVAL-population->best->eval)/(double)MAX_EVAL * 100);
-    PPMPixel* background = population->best->processor->background;
-    printf("Background colour %d, %d, %d\n", background->R, background->G, background->B);
-    PPMImage* best_image = ppm_image_processor_draw_polygons_alt(population->best->processor, true);
-    print_image_processor(population->best->processor);
+    PPMImage* best_image = ppm_image_processor_draw_polygons_alt(population->best->processor, false);
     ppm_image_save(best_image, "best.ppm");
     ppm_image_del(best_image);
+
+#ifdef DEBUG_VERBOSE
+    PPMPixel* background = population->best->processor->background;
+    printf("Background colour %d, %d, %d\n", background->R, background->G, background->B);
+    print_image_processor(population->best->processor);
+#endif
+
     
     ppm_image_del(base_image);
     ppm_evolution_population_del(population);
 }
 
 int main(){
-    run("images/7a.ppm", 160, 100, 1);
+    run("images/originals/original.ppm", 160, 100, 1);
 
 //    PPMImage* best_image = ppm_image_load("images/7a.ppm");
 //    ppm_image_save(best_image, "best.ppm");

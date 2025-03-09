@@ -8,9 +8,9 @@
 *.elf
 
 # Image files
-images/*
 *.ppm
 !test/images/*
+!images/originals/*
 
 # Vim temporary files
 *~

@@ -86,7 +86,7 @@ PPMImage* ppm_image_load(char* fp){
 
     FILE *file = fopen(fp, "rb");
     if (!file){
-        fprintf(stderr, "ppm_image_load: Unable to open file\n");
+        fprintf(stderr, "ppm_image_load: Unable to open file at: %s\n", fp);
         BREAK_OUT(1);
     }
 

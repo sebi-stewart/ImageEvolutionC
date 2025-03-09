@@ -5,17 +5,17 @@
 #include "test_PPMImage.h"
 
 
-MunitTest tests[] = {
-        { "/test-image-init-success", test_image_init, test_setup, test_tear_down, MUNIT_TEST_OPTION_NONE, NULL },
-        { "/test-image-init-width-height-err", test_image_init_width_height_err, test_setup, test_tear_down, MUNIT_TEST_OPTION_NONE, NULL },
-        { "/test-image-new-blank", test_image_new_blank, test_setup, test_tear_down, MUNIT_TEST_OPTION_NONE, NULL },
-        { "/test-image-set-pixel", test_image_set_pixel, test_setup, test_tear_down, MUNIT_TEST_OPTION_NONE, NULL },
-        { "/test-image-set-pixel-image-null", test_image_set_pixel_image_null, test_setup, test_tear_down, MUNIT_TEST_OPTION_NONE, NULL },
-        { "/test-image-set-pixel-image-data-null", test_image_set_pixel_image_data_null, test_setup, test_tear_down, MUNIT_TEST_OPTION_NONE, NULL },
-        { "/test-image-pixel-location-out-of-bounds", test_image_set_pixel_location_out_of_bounds, test_setup, test_tear_down, MUNIT_TEST_OPTION_NONE, NULL },
-        { "/test-image-pixel-colour-out-of-bounds", test_image_set_pixel_colour_out_of_bounds, test_setup, test_tear_down, MUNIT_TEST_OPTION_NONE, NULL },
-        { "/test-has-ppm-extension", test_has_ppm_extension, test_setup, test_tear_down, MUNIT_TEST_OPTION_NONE, NULL },
-        { "/test-has-ppm-extension-null", test_has_ppm_extension_null, test_setup, test_tear_down, MUNIT_TEST_OPTION_NONE, NULL },
+MunitTest ppm_image_tests[] = {
+        { "/test-image-init-success", test_image_init, test_image_setup, test_image_tear_down, MUNIT_TEST_OPTION_NONE, NULL },
+        { "/test-image-init-width-height-err", test_image_init_width_height_err, test_image_setup, test_image_tear_down, MUNIT_TEST_OPTION_NONE, NULL },
+        { "/test-image-new-blank", test_image_new_blank, test_image_setup, test_image_tear_down, MUNIT_TEST_OPTION_NONE, NULL },
+        { "/test-image-set-pixel", test_image_set_pixel, test_image_setup, test_image_tear_down, MUNIT_TEST_OPTION_NONE, NULL },
+        { "/test-image-set-pixel-image-null", test_image_set_pixel_image_null, test_image_setup, test_image_tear_down, MUNIT_TEST_OPTION_NONE, NULL },
+        { "/test-image-set-pixel-image-data-null", test_image_set_pixel_image_data_null, test_image_setup, test_image_tear_down, MUNIT_TEST_OPTION_NONE, NULL },
+        { "/test-image-pixel-location-out-of-bounds", test_image_set_pixel_location_out_of_bounds, test_image_setup, test_image_tear_down, MUNIT_TEST_OPTION_NONE, NULL },
+        { "/test-image-pixel-colour-out-of-bounds", test_image_set_pixel_colour_out_of_bounds, test_image_setup, test_image_tear_down, MUNIT_TEST_OPTION_NONE, NULL },
+        { "/test-has-ppm-extension", test_has_ppm_extension, test_image_setup, test_image_tear_down, MUNIT_TEST_OPTION_NONE, NULL },
+        { "/test-has-ppm-extension-null", test_has_ppm_extension_null, test_image_setup, test_image_tear_down, MUNIT_TEST_OPTION_NONE, NULL },
         { "/test-image-load-valid-file", test_image_load_valid_file, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
         { "/test-image-load-invalid-extension", test_image_load_invalid_extension, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
         { "/test-image-load-nonexistent-file", test_image_load_nonexistent_file, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
@@ -33,34 +33,17 @@ MunitTest tests[] = {
         { NULL, NULL, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL }
 };
 
-static const MunitSuite suite = {
-        "/PPMImage-tests", /* name */
-        tests, /* tests */
-        NULL, /* suites */
-        1, /* iterations */
-        MUNIT_SUITE_OPTION_NONE /* options */
-};
+static const MunitSuite ppm_image_suite = {"/PPMImage-tests",ppm_image_tests,NULL,1,MUNIT_SUITE_OPTION_NONE};
 
 static void*
-test_setup(const MunitParameter params[], void* user_data) {
+test_image_setup(const MunitParameter params[], void* user_data) {
     clear_call_file();
     return ppm_image_init(8, 8, 0, 0, 0);
 }
 
 static void
-test_tear_down(void* fixture) {
+test_image_tear_down(void* fixture) {
     ppm_image_del(fixture);
-}
-
-MunitResult are_images_equal(PPMImage* image1, PPMImage* image2){
-    if (image1 == NULL && image2 == NULL){
-        return MUNIT_OK;
-    } if (image1 == NULL || image2 == NULL){
-        return MUNIT_FAIL;
-    }
-    munit_assert_memory_equal(sizeof(PPMImage), image1, image2);
-
-    return MUNIT_OK;
 }
 
 MunitResult are_all_pixels_equal(PPMImage* image, PPMPixel* comparison){
@@ -309,5 +292,5 @@ MunitResult test_image_del_null_image(const MunitParameter params[], void* fixtu
 }
 
 int main(void) {
-    return munit_suite_main(&suite, NULL, 0, NULL);
+    return munit_suite_main(&ppm_image_suite, NULL, 0, NULL);
 }

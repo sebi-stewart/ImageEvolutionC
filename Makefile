@@ -65,13 +65,13 @@ run-PPMPixel: PPMPixel.o
 	./PPMPixel.o
 
 clean:
-	rm -f *.o
+	find . -maxdepth 2 -type f -iname "*.o" -exec rm {} \;
 	@echo "Deleted object files"
-	rm -f *.ppm
+	find . -maxdepth 2 -type f -iname "*.ppm" -exec rm {} \;
 	@echo "Deleted image files"
 
 
-test-PPMPixel test/test_PPMPixel.c test/test_PPMPixel.h:
+test-PPMPixel:
 	$(CC) $(TESTING_FLAGS) test/test_PPMPixel.c $(PPM_PIXEL_SOURCES) $(MUNIT_SOURCE) -o test/test_PPMPixel.o
 
 test-PPMImage:

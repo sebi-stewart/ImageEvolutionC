@@ -8,9 +8,9 @@
 #include "munit/munit.h"
 
 static void*
-test_setup(const MunitParameter params[], void* user_data);
+test_pixel_setup(const MunitParameter params[], void* user_data);
 static void
-test_tear_down(void* fixture);
+test_pixel_tear_down(void* fixture);
 
 MunitResult test_pixel_set_overflow(const MunitParameter params[], void* fixture);
 MunitResult test_pixel_set_negative(const MunitParameter params[], void* fixture);
