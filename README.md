@@ -35,3 +35,20 @@ With this program I did several sets of testing, including manual run big bang t
     ./test/test_PPMImage.o
 ``` 
 commands in the terminal.
+
+## Results:
+After running the program for several hours I was able to achieve a similarity of 97% to the original image:
+<table>
+    <tr>
+        <th> Original</th>
+        <th> Created Image</th>
+    </tr>
+    <tr>
+        <td><img width="128" alt="Original Image" src="https://github.com/user-attachments/assets/70f59ae2-8220-4d85-b3c2-fbd62847c5c1" /></td>
+        <td><img width="128" alt="Best Evolution" src="https://github.com/user-attachments/assets/a074fa1d-436d-44be-8170-ae66936a3de7" /></td>
+    </tr>
+</table>
+
+
+> [!NOTE]
+> This was run using multithreading and only having the application running and used a 200x200 pixel image that was first converted to the PPM format and then the result converted back to png to display here
