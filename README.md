@@ -52,3 +52,7 @@ After running the program for several hours I was able to achieve a similarity o
 
 > [!NOTE]
 > This was run using multithreading and only having the application running and used a 200x200 pixel image that was first converted to the PPM format and then the result converted back to png to display here
+
+### Gif:
+![best_7a_p100_g5100](https://github.com/user-attachments/assets/bea896c3-7e35-4636-aee9-9aeda62adbfb)
+
